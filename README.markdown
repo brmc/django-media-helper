@@ -1,4 +1,4 @@
-# django-media-helper
+## django-media-helper
 
 This app is broken into 2 parts.
 
@@ -74,9 +74,8 @@ If you're going to be using the template tag to deliver the new images, remember
 
 ## Usage
 
-The resizing and cleanup functions are done automatically.  Whenever an image is uploaded, changed, or deleted, the images will be resized or deleted for you.  You don't need to do anything special.
-
-But to integrate the resized images into your templates, you first need to add the JS source file.  Remember to add this after Jquery:
+The resizing and cleanup functions are done automatically.  Whenever an image is uploaded, changed, or deleted, the images will be 
+resized or deleted for you.  You don't need to do anything special.  But to integrate the resized images into your templates, you first need to add the JS source file.  Remember to add this after Jquery:
 
     {% static 'media-helper/resizer.js' %}
 
