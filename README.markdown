@@ -12,8 +12,10 @@ images on change or deletion.
 
 From the django-cleanup docs:
 
+
 **Warning! If you use transactions you may lose you files if transaction will rollback. 
 If you are concerned about it you need other solution for old file deletion in your project.**
+
 
 Most django projects I've seen don't use transactions and this app is designed for such projects.
 
@@ -53,10 +55,10 @@ Add media_helper to settings.py
         'media_helper', # should go after your apps
     )
 
-**media_helper** should be placed after all your apps. (At least after those apps which need to remove files.)
+`*media_helper*` should be placed after all your apps. (At least after those apps which need to remove files.)
 
 
-The following urls are needed to set the session variable to track the resolution.Add the following to 
+The following urls are needed to set the session variable to track the resolution. Add the following to 
 your root `urls.py`
 
     urlpatterns = patterns('',
@@ -70,16 +72,19 @@ variable anyway you wish. So let's collect the staticcfiles:
 
     ./manage.py collectstatic
 
-If you're going to be using the template tag to deliver the new images, remember to restart yourserver after installing the package.
+If you're going to be using the template tag to deliver the new images, remember to restart yourserver after 
+installing the package.
 
 ## Usage
 
-The resizing and cleanup functions are done automatically.  Whenever an image is uploaded, changed, or deleted, the images will be 
-resized or deleted for you.  You don't need to do anything special.  But to integrate the resized images into your templates, you first need to add the JS source file.  Remember to add this after Jquery:
+The resizing and cleanup functions are done automatically.  Whenever an image is uploaded, changed, or deleted, 
+the images will be resized or deleted for you.  You don't need to do anything special.  But to integrate the 
+resized images into your templates, you first need to add the JS source file.  Remember to add this after Jquery:
 
     {% static 'media-helper/resizer.js' %}
 
-Now when you want to use a resized image, just use the `resolution` filter on an image in the `src` attribute in the `img` tag:
+Now when you want to use a resized image, just use the `resolution` filter on an image in the `src` attribute in 
+the `img` tag:
 
     <img src="{{image|resolution}}" />
 
