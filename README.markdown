@@ -1,4 +1,4 @@
-# django-media-helper
+## django-media-helper
 
 This app is broken into 2 parts.
 
