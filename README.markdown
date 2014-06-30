@@ -18,21 +18,12 @@ or deletion.
 
 From the django-cleanup docs:
 
-<<<<<<< HEAD
 **Warning! If you use transactions you may lose you files if transaction 
 will rollback. If you are concerned about it you need other solution for 
 old file deletion in your project.**
 
 Most django projects I've seen don't use transactions and this app is 
 designed for such projects.
-=======
-
-**Warning! If you use transactions you may lose you files if transaction will rollback. 
-If you are concerned about it you need other solution for old file deletion in your project.**
-
-
-Most django projects I've seen don't use transactions and this app is designed for such projects.
->>>>>>> 613fcdf9bd6bca7d7bdee7468c077def5275d04e
 
 ## How does it work?
 
@@ -94,20 +85,12 @@ Add media_helper to settings.py
         'media_helper', # should go after your apps
     )
 
-<<<<<<< HEAD
 `media_helper` should be placed after all your apps. (At least after those 
 apps which need to remove files.)
 
 
 The following urls are needed to set the session variable to track the 
 resolution.Add the following to your root `urls.py`
-=======
-`*media_helper*` should be placed after all your apps. (At least after those apps which need to remove files.)
-
-
-The following urls are needed to set the session variable to track the resolution. Add the following to 
-your root `urls.py`
->>>>>>> 613fcdf9bd6bca7d7bdee7468c077def5275d04e
 
     urlpatterns = patterns('',
         ...
@@ -121,7 +104,6 @@ the staticcfiles:
 
     ./manage.py collectstatic
 
-<<<<<<< HEAD
 If you're going to be using the template tag to deliver the new images, remember 
 to restart yourserver after installing the package.
 
@@ -140,21 +122,6 @@ Now when you want to use a resized image, just use the `resolution` filter on an
 image in the `src` attribute in the `img` tag:
 
     <img src="{% resolution image %}}" />
-=======
-If you're going to be using the template tag to deliver the new images, remember to restart yourserver after 
-installing the package.
-
-## Usage
-
-The resizing and cleanup functions are done automatically.  Whenever an image is uploaded, changed, or deleted, 
-the images will be resized or deleted for you.  You don't need to do anything special.  But to integrate the 
-resized images into your templates, you first need to add the JS source file.  Remember to add this after Jquery:
-
-    {% static 'media-helper/resizer.js' %}
-
-Now when you want to use a resized image, just use the `resolution` filter on an image in the `src` attribute in 
-the `img` tag:
->>>>>>> 613fcdf9bd6bca7d7bdee7468c077def5275d04e
 
 In this example `image` would be the context variable for an image field.
 
@@ -178,7 +145,7 @@ Default value:
 `MEDIA_HELPER_AUTO_SIZES = [2560, 1920, 1600, 1440, 1366, 1280, 1024, 800]`
 
 If `MEDIA_HELPER_AUTO_SIZES` is `True`, You need to set MEDIA_HELPER_MAX, 
-MEDIA_HELPER_MIN, MEDIA_HELPER_STEP_SIZE.  MAX and MAX are both inclusive.  
+MEDIA_HELPER_MIN, MEDIA_HELPER_STEP_SIZE.  MAX andMAX are both inclusive.  
 
 Default values:
     MEDIA_HELPER_MAX = 2560
