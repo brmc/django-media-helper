@@ -145,7 +145,7 @@ Default value:
 `MEDIA_HELPER_AUTO_SIZES = [2560, 1920, 1600, 1440, 1366, 1280, 1024, 800]`
 
 If `MEDIA_HELPER_AUTO_SIZES` is `True`, You need to set MEDIA_HELPER_MAX, 
-MEDIA_HELPER_MIN, MEDIA_HELPER_STEP_SIZE.  MAX and MAX are both inclusive.  
+MEDIA_HELPER_MIN, MEDIA_HELPER_STEP_SIZE.  MAX andMAX are both inclusive.  
 
 Default values:
     MEDIA_HELPER_MAX = 2560
