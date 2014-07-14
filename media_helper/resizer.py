@@ -89,10 +89,15 @@ def get_sizes():
 
 def generate_sizes(resolutions):
     '''
-    Accepts a list of resolutions to generate a dict of percentages
+    Accepts a list of screen widths to generate a dict of percentages
     that will be used to scale the image in resize()
 
     '''
+    try:
+        from media_helper.settings import MEDIA_HELPER_MAX as maximum
+        from media_helper.settings import MEDIA_HELPER_MIN as minimum
+    except ImportError:
+        minimum, maximum = min(resolutions), max(resolutions)
 
     try:
         resolutions = map(float, resolutions)
@@ -100,44 +105,82 @@ def generate_sizes(resolutions):
         print 'dem aint numbers. fix em.'
         raise
 
-    minimum, maximum = min(resolutions), max(resolutions)
-    sizes = {str(i): i / maximum for i in resolutions}
+    
+    sizes = {str(int(round(i, 0))): i / maximum for i in resolutions}
 
     return sizes
 
-def resize(sender, instance, *args, **kwargs):
+def create_directories(sizes, media_root, upload_to):
     '''
-    This resizes images for screen widths between 800 and 2560px.
+    This accepts a dict of sizes and checks for a directory 'upload_to'
+    located in media_root/size. If it doesn't already exist, is is created
     '''
-    media_root = settings.MEDIA_ROOT
-    encoding = instance.image.name.split('.')[-1]
-    # set path for image upload directory
-    #path = "%s/images/" % base_path
-    sizes = get_sizes()
-
-    # checks for folder directory.  Creates dirs if doesn't exist
     for key in sizes.iterkeys():
-        new_dir = os.path.join(media_root,key, instance.image.field.upload_to)
+        new_dir = os.path.join(media_root,key, upload_to)
         if not os.path.exists(new_dir):
             os.makedirs(new_dir)
 
+
+def resize_multiple(sender, instance, *args, **kwargs):
+    '''
+    This resizes images based on user-defined settings.
+    '''
+    # Root path in which to create directories for different
+    # resolutions
+    media_root = settings.MEDIA_ROOT
+
+    # This assumes too much.  I should make this a bit more idiot-proof
+    # In an ideal situation, this strips the filetype from the end of
+    # the file name to be used later when encoding the scaled images
+    # hrm...now that I think of it, this might actually be ok.  I should
+    # check to see how ImageField validates filenames.
+    
+    
+    sizes = get_sizes()
+    create_directories(sizes, media_root, instance.image.field.upload_to)
+    
     # sets full path of image to be opened
     item_path = os.path.join(media_root, instance.image.name)
     image = Image.open(item_path)
 
-    width, height = image.size
+    #width, height = image.size
 
     # iterates over sizes, scales, and saves accordingly.
     for key, val in sizes.iteritems():
-        new_image = image.resize((int(width * val),int(height * val)) , Image.ANTIALIAS)  
-     
-        try:
-            new_image.save(os.path.join(media_root, key, instance.image.name), encoding,  quality=85)
+        resize(media_root, key, val, image, instance.image.name)
 
-        except KeyError:
-            print "Unknown encoding or bad file name"
-            raise
 
+
+def resize(media_root, folder, scaling_factor, image, image_name, ):
+    from PIL import Image
+
+    width, height = image.size
+    encoding = image_name.split('.')[-1]
+    if encoding.lower() == "jpg":
+        encoding = "jpeg"
+    new_image = image.resize((int(width * scaling_factor),int(height * scaling_factor)) , Image.ANTIALIAS)
+
+    try:
+        new_image.save(os.path.join(media_root, folder, image_name), encoding,  quality=85)
+        #print os.path.join(media_root, folder, image_name)
+    except KeyError:
+        print "Unknown encoding or bad file name"
+        raise
+
+def resize_all(root, resolution):
+    new_size = generate_sizes([resolution,])
+    print new_size
+    os.makedirs(os.path.join(root, resolution))
+    print root
+    print resolution
+    for subdir, dirs, files in os.walk(os.path.join(root, 'bilder')):
+        for file in files:
+            item_path = os.path.join(subdir, file)
+            image = Image.open(item_path)
+            resize(root, new_size.keys()[0], new_size.values()[0], image, file)
+            # sorry about the new_size.keys()[0] shit
+            # im in a rush.
+        #resize(MEDIA_ROOT, new_size.keys()[0], new_size.values()[0]., image, image_name
 
 def delete_resized_images(sender, instance, *args, **kwargs):
     '''
@@ -150,6 +193,6 @@ def delete_resized_images(sender, instance, *args, **kwargs):
 
 def resize_signals():
     for model in find_models_with_imagefield():
-        post_save.connect(resize, sender = model)
+        post_save.connect(resize_multiple, sender = model)
         pre_delete.connect(delete_resized_images, sender = model)
 
