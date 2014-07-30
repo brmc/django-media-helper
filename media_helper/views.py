@@ -11,10 +11,10 @@ def resolution(request):
 
         import os
         resolution = request.POST['resolution']
-        print "resolution", resolution
+        #print "resolution", resolution
         #folder = insert_folder(resolution)
         new_path = os.path.join(settings.MEDIA_ROOT, resolution)
-        print resolution
+        #print resolution
         
         if os.path.exists(new_path):
             pass

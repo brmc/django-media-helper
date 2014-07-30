@@ -7,17 +7,26 @@ from django.db import models
 from django.db.models.signals import post_save, pre_delete
 from django.conf import settings
 
-def find_models_with_imagefield(): 
+def find_models_with_field(field_type): 
     '''
     Returns a list of models that have an image field
     '''
     result = []
     for model in models.get_models():
         for field in model._meta.fields:
-            if isinstance(field, models.ImageField):
+            if isinstance(field, field_type):
                 result.append(model)
                 break
     return result
+
+def get_upload_dirs(model_list):
+    dirs = []
+    for model in model_list:
+        for field in model._meta.fields:
+            if isinstance(field, models.ImageField):
+                dirs.append(field.upload_to)
+
+    return dirs
 
 def get_sizes():
     '''
@@ -120,6 +129,22 @@ def create_directories(sizes, media_root, upload_to):
         if not os.path.exists(new_dir):
             os.makedirs(new_dir)
 
+def resize(media_root, folder, scaling_factor, image, image_name, ):
+    from PIL import Image
+
+    width, height = image.size
+    encoding = image_name.split('.')[-1]
+
+    if encoding.lower() == "jpg":
+        encoding = "jpeg"
+    new_image = image.resize((int(width * scaling_factor),int(height * scaling_factor)) , Image.ANTIALIAS)
+
+    try:
+        new_image.save(os.path.join(media_root, folder, image_name), encoding,  quality=85)
+        #print os.path.join(media_root, folder, image_name)
+    except KeyError:
+        print "Unknown encoding or bad file name"
+        raise
 
 def resize_multiple(sender, instance, *args, **kwargs):
     '''
@@ -151,37 +176,44 @@ def resize_multiple(sender, instance, *args, **kwargs):
 
 
 
-def resize(media_root, folder, scaling_factor, image, image_name, ):
-    from PIL import Image
-
-    width, height = image.size
-    encoding = image_name.split('.')[-1]
-    if encoding.lower() == "jpg":
-        encoding = "jpeg"
-    new_image = image.resize((int(width * scaling_factor),int(height * scaling_factor)) , Image.ANTIALIAS)
-
-    try:
-        new_image.save(os.path.join(media_root, folder, image_name), encoding,  quality=85)
-        #print os.path.join(media_root, folder, image_name)
-    except KeyError:
-        print "Unknown encoding or bad file name"
-        raise
-
 def resize_all(root, resolution):
+    '''
+    Resizes all images in upload directories for a new resolution
+
+    :param root MEDIA_ROOT
+    :param resolution a string representation of an integer
+    '''
     new_size = generate_sizes([resolution,])
-    print new_size
-    os.makedirs(os.path.join(root, resolution))
-    print root
-    print resolution
-    for subdir, dirs, files in os.walk(os.path.join(root, 'bilder')):
-        for file in files:
-            item_path = os.path.join(subdir, file)
-            image = Image.open(item_path)
-            resize(root, new_size.keys()[0], new_size.values()[0], image, file)
+     
+    upload_dirs = get_upload_dirs(find_models_with_field(models.ImageField))
+
+    
+    for x in upload_dirs:
+        source_dir = os.path.join(root, x)
+        
+        if os.path.isdir(source_dir) and x is not ".":
+            resize_dir = os.path.join(root, resolution, x)
+            
+            if not os.path.isdir(resize_dir):
+                os.makedirs(resize_dir)
+            
+            for subdir, dirs, files in os.walk(source_dir):
+                for file in files:
+                    new_file = os.path.join(resize_dir, x, file)
+                    
+                    if not os.path.isfile(new_file):
+                        image_path = os.path.join(subdir, file)
+                        image = Image.open(image_path)
+                        resize(root, new_size.keys()[0], new_size.values()[0], image, x + "/" + file)
+
+                    #print file
+                    #print dirs
+                    
+                    #
             # sorry about the new_size.keys()[0] shit
             # im in a rush.
         #resize(MEDIA_ROOT, new_size.keys()[0], new_size.values()[0]., image, image_name
-
+    
 def delete_resized_images(sender, instance, *args, **kwargs):
     '''
     Iterates over the defined sizes, and deletes images in those directories
@@ -192,7 +224,7 @@ def delete_resized_images(sender, instance, *args, **kwargs):
             os.remove(image)
 
 def resize_signals():
-    for model in find_models_with_imagefield():
+    for model in find_models_with_field(models.ImageField):
         post_save.connect(resize_multiple, sender = model)
         pre_delete.connect(delete_resized_images, sender = model)
 
