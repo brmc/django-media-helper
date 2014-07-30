@@ -49,7 +49,10 @@ $(document).ready(function(){
     $.ajax({
         type: "POST",
         url: '/media-helper/resolution/',
-        data: {'resolution' :window.screen.width,},
+        data: {
+            'width' :window.screen.width,
+            'height': window.screen.height
+        },
         success: null,
         
     });

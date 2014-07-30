@@ -19,11 +19,11 @@ def find_models_with_field(field_type):
                 break
     return result
 
-def get_upload_dirs(model_list):
+def find_upload_dirs(model_list):
     dirs = []
     for model in model_list:
         for field in model._meta.fields:
-            if isinstance(field, models.ImageField):
+            if isinstance(field, models.ImageField) and field.upload_to is not '.':
                 dirs.append(field.upload_to)
 
     return dirs
@@ -72,7 +72,7 @@ def get_sizes():
         except AttributeError:
             #default scaling factors for various screen widths
             sizes = default_settings.MEDIA_HELPER_SIZES
-            print "poo"
+
     else:
         try:
             maximum = settings.MEDIA_HELPER_MAX
@@ -96,7 +96,7 @@ def get_sizes():
 
     return generate_sizes(sizes)
 
-def generate_sizes(resolutions):
+def generate_sizes(widths):
     '''
     Accepts a list of screen widths to generate a dict of percentages
     that will be used to scale the image in resize()
@@ -106,16 +106,16 @@ def generate_sizes(resolutions):
         from media_helper.settings import MEDIA_HELPER_MAX as maximum
         from media_helper.settings import MEDIA_HELPER_MIN as minimum
     except ImportError:
-        minimum, maximum = min(resolutions), max(resolutions)
+        minimum, maximum = min(widths), max(widths)
 
     try:
-        resolutions = map(float, resolutions)
+        widths = map(float, widths)
     except ValueError:
         print 'dem aint numbers. fix em.'
         raise
 
     
-    sizes = {str(int(round(i, 0))): i / maximum for i in resolutions}
+    sizes = {str(int(round(i, 0))): i / maximum for i in widths}
 
     return sizes
 
@@ -129,17 +129,23 @@ def create_directories(sizes, media_root, upload_to):
         if not os.path.exists(new_dir):
             os.makedirs(new_dir)
 
-def resize(media_root, folder, scaling_factor, image, image_name, ):
+def resize(media_root, folder, scaling_factor, image_path):
     from PIL import Image
 
+    image = Image.open(image_path)
+
+    # This is necessary because django prepends upload_to to the filename when saving
+    image_name = image_path.split(settings.MEDIA_URL)[-1]
     width, height = image.size
     encoding = image_name.split('.')[-1]
 
     if encoding.lower() == "jpg":
         encoding = "jpeg"
+
     new_image = image.resize((int(width * scaling_factor),int(height * scaling_factor)) , Image.ANTIALIAS)
 
     try:
+        print os.path.join(media_root, folder, image_name)
         new_image.save(os.path.join(media_root, folder, image_name), encoding,  quality=85)
         #print os.path.join(media_root, folder, image_name)
     except KeyError:
@@ -172,11 +178,11 @@ def resize_multiple(sender, instance, *args, **kwargs):
 
     # iterates over sizes, scales, and saves accordingly.
     for key, val in sizes.iteritems():
-        resize(media_root, key, val, image, instance.image.name)
+        resize(media_root, key, val, image_path)
 
 
 
-def resize_all(root, resolution):
+def resize_all(media_root, resolution):
     '''
     Resizes all images in upload directories for a new resolution
 
@@ -185,17 +191,17 @@ def resize_all(root, resolution):
     '''
     new_size = generate_sizes([resolution,])
      
-    upload_dirs = get_upload_dirs(find_models_with_field(models.ImageField))
+    upload_dirs = find_upload_dirs(find_models_with_field(models.ImageField))
 
     
     for x in upload_dirs:
-        source_dir = os.path.join(root, x)
+        # Source dir of images to be resized
+        source_dir = os.path.join(media_root, x)
         
-        if os.path.isdir(source_dir) and x is not ".":
-            resize_dir = os.path.join(root, resolution, x)
+        if os.path.isdir(source_dir):
+            resize_dir = os.path.join(media_root, resolution, x)
             
-            if not os.path.isdir(resize_dir):
-                os.makedirs(resize_dir)
+            create_directories(new_size, media_root, x)
             
             for subdir, dirs, files in os.walk(source_dir):
                 for file in files:
@@ -203,16 +209,12 @@ def resize_all(root, resolution):
                     
                     if not os.path.isfile(new_file):
                         image_path = os.path.join(subdir, file)
-                        image = Image.open(image_path)
-                        resize(root, new_size.keys()[0], new_size.values()[0], image, x + "/" + file)
+                        #image = Image.open(image_path)
 
-                    #print file
-                    #print dirs
-                    
-                    #
-            # sorry about the new_size.keys()[0] shit
-            # im in a rush.
-        #resize(MEDIA_ROOT, new_size.keys()[0], new_size.values()[0]., image, image_name
+                        # This is ugly because django prepends the upload_to dir to the filename when
+                        # saving.  It works, but I need to clean it up.
+                        resize(media_root, new_size.keys()[0], new_size.values()[0], image_path)
+
     
 def delete_resized_images(sender, instance, *args, **kwargs):
     '''
