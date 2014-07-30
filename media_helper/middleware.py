@@ -10,9 +10,8 @@ class InterceptMediaRequest(object):
     def process_response(self, request, response):
         import re
         import os
-
+        print "last redirect: ", request.session.get('last_redirect')
         #pattern = r'<img.*src\s?=\s?"(\w*.(?:jpg|png|jpeg))"'
-        print request.path
         #print response
         if request.path.startswith(settings.MEDIA_URL):
 
@@ -22,9 +21,8 @@ class InterceptMediaRequest(object):
                 path = request.path.split('/')
                 path.insert(2, folder)
                 path = "/".join(path[2:])
-                b= os.path.join(settings.MEDIA_ROOT, path)
-                print "pathasdf", path
-                print os.path.isfile(b)
+                b = os.path.join(settings.MEDIA_ROOT, path)
+                print "is file: ", os.path.isfile(b)
                
                 if os.path.isfile(b):
                     print "yay@!"
