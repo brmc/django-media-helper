@@ -6,12 +6,12 @@ register = template.Library()
 def resize(context, image):
 
     from media_helper.resizer import resize
-    from media_helper.settings import MEDIA_HELPER_DEFAULT 
+    from media_helper.settings import Settings
     import os
     try:
         resolution = context['request'].session['resolution']
     except KeyError:
-        resolution = str(MEDIA_HELPER_DEFAULT)
+        resolution = str(Settings().default)
 
 
     path = context['MEDIA_URL']

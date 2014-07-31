@@ -6,11 +6,17 @@ import django
 from django.db import models
 from django.db.models.signals import post_save, pre_delete
 from django.conf import settings
+from .settings import Settings
 
 def find_models_with_field(field_type): 
-    '''
-    Returns a list of models that have an image field
-    '''
+    """Returns a list of models that have the specified field type.
+
+    Arguments:
+    :param field_type: the type of field to search for
+    :type field_type: a field from django.db.models
+
+    :returns: list of models from installed apps
+    """
     result = []
     for model in models.get_models():
         for field in model._meta.fields:
@@ -20,6 +26,13 @@ def find_models_with_field(field_type):
     return result
 
 def find_upload_dirs(model_list):
+    """Finds all upload_to directories for ImageFields
+
+    Arguments:
+    :param model_list: a list of models from installed apps
+    :type model_list: a list of models
+    :returns: list of upload paths 
+    """
     dirs = []
     for model in model_list:
         for field in model._meta.fields:
@@ -28,102 +41,21 @@ def find_upload_dirs(model_list):
 
     return dirs
 
-def get_sizes():
+def create_directories(media_root, sizes, upload_to):
+    ''' Creates new directories in the media directory
+
+    Duplicates the directory structure of each upload_to for a series
+    of sizes or screen widths
+
+    Arguments:
+    :param sizes: a list of screen widths
+    :type sizes: list of strings or ints
+    :param media_root: MEDIA_ROOT directory defined in settings
+    :type media_root: string
+    :param upload_to: upload directory defined in field definition
+    :type upload_to: string
     '''
-    Tries to import the following user defined settings, 
-    otherwise falls back to default.  Returns a list:
-    
-    MEDIA_HELPER_AUTO_SIZES: Bool
-        Determines whether to use a list of pre-defined resolutions or,
-        to have them automatically generated
 
-    MEDIA_HELPER_SIZES: list of integers, floats, or strings
-        These will be the resolutions to resize for
-
-    MEDIA_HELPER_MAX, MEDIA_HELPER_MIN: integer
-        These ranges will be used for the automatic generation of sizes
-        * Max and Min are both inclusive
-
-    MEDIA_HELPER_STEP_SIZE: integer
-        Increments between minimum and maximum resolutions
-
-        For example, if the user defines:
-        MEDIA_HELPER_AUTO_SIZES= True
-        MEDIA_HELPER_MIN = 1
-        MEDIA_HELPER_MAX = 10
-        MEDIA_HELPER_STEP_SIZE = 5
-
-    get_sizes() will return [1, 5, 10]
-
-    '''
-    import settings as default_settings
-
-    try:
-        auto = settings.MEDIA_HELPER_AUTO_SIZES
-    except AttributeError as e:
-        auto = default_settings.MEDIA_HELPER_AUTO_SIZES
-    except:
-        print "Yo settins be all woogely-boogely.  Fix em so dat MEDIA_HELPER_AUTO_SIZES is troof oder not troof wit a big T and F"
-        raise
-
-    if not auto:
-        try:
-            sizes = settings.MEDIA_HELPER_SIZES
-        except AttributeError:
-            #default scaling factors for various screen widths
-            sizes = default_settings.MEDIA_HELPER_SIZES
-
-    else:
-        try:
-            maximum = settings.MEDIA_HELPER_MAX
-            minimum = settings.MEDIA_HELPER_MIN
-            step_size = settings.MEDIA_HELPER_STEP_SIZE
-
-        except AttributeError:
-            maximum = default_settings.MEDIA_HELPER_MAX
-            minimum = default_settings.MEDIA_HELPER_MIN
-            step_size = default_settings.MEDIA_HELPER_STEP_SIZE
-
-        if maximum < minimum:
-            maximum, minimum = minimum, maximum
-
-        if step_size > maximum - minimum:
-            print 'yo step size b 2 big. lol. y u so dum?!?'
-            raise
-
-        sizes = range(minimum, maximum + 1, step_size)
-        
-
-    return generate_sizes(sizes)
-
-def generate_sizes(widths):
-    '''
-    Accepts a list of screen widths to generate a dict of percentages
-    that will be used to scale the image in resize()
-
-    '''
-    try:
-        from media_helper.settings import MEDIA_HELPER_MAX as maximum
-        from media_helper.settings import MEDIA_HELPER_MIN as minimum
-    except ImportError:
-        minimum, maximum = min(widths), max(widths)
-
-    try:
-        widths = map(float, widths)
-    except ValueError:
-        print 'dem aint numbers. fix em.'
-        raise
-
-    
-    sizes = {str(int(round(i, 0))): i / maximum for i in widths}
-
-    return sizes
-
-def create_directories(sizes, media_root, upload_to):
-    '''
-    This accepts a dict of sizes and checks for a directory 'upload_to'
-    located in media_root/size. If it doesn't already exist, is is created
-    '''
     for key in sizes.iterkeys():
         new_dir = os.path.join(media_root,key, upload_to)
         if not os.path.exists(new_dir):
@@ -167,8 +99,9 @@ def resize_multiple(sender, instance, *args, **kwargs):
     # check to see how ImageField validates filenames.
     
     
-    sizes = get_sizes()
-    create_directories(sizes, media_root, instance.image.field.upload_to)
+    #sizes = get_sizes()
+    sizes = Settings().generate_scaling_factors()
+    create_directories(media_root, sizes, instance.image.field.upload_to)
     
     # sets full path of image to be opened
     item_path = os.path.join(media_root, instance.image.name)
@@ -178,34 +111,32 @@ def resize_multiple(sender, instance, *args, **kwargs):
 
     # iterates over sizes, scales, and saves accordingly.
     for key, val in sizes.iteritems():
-        resize(media_root, key, val, image_path)
+        resize(media_root, key, val, item_path)
 
 
 
-def resize_all(media_root, resolution):
-    '''
-    Resizes all images in upload directories for a new resolution
+def resize_all(media_root, width):
+    ''' Resizes all images in upload directories for a new screen width
 
     :param root MEDIA_ROOT
-    :param resolution a string representation of an integer
+    :param width: a string representation of an integer
     '''
-    new_size = generate_sizes([resolution,])
-     
-    upload_dirs = find_upload_dirs(find_models_with_field(models.ImageField))
 
+    new_size = Settings().generate_scaling_factors([width,]) 
+    upload_dirs = find_upload_dirs(find_models_with_field(models.ImageField))
     
-    for x in upload_dirs:
+    for upload_dir in upload_dirs:
         # Source dir of images to be resized
-        source_dir = os.path.join(media_root, x)
+        source_dir = os.path.join(media_root, upload_dir)
         
         if os.path.isdir(source_dir):
-            resize_dir = os.path.join(media_root, resolution, x)
+            resize_dir = os.path.join(media_root, width, upload_dir)
             
-            create_directories(new_size, media_root, x)
+            create_directories(media_root, new_size, upload_dir)
             
             for subdir, dirs, files in os.walk(source_dir):
                 for file in files:
-                    new_file = os.path.join(resize_dir, x, file)
+                    new_file = os.path.join(resize_dir, upload_dir, file)
                     
                     if not os.path.isfile(new_file):
                         image_path = os.path.join(subdir, file)
@@ -220,12 +151,15 @@ def delete_resized_images(sender, instance, *args, **kwargs):
     '''
     Iterates over the defined sizes, and deletes images in those directories
     '''
-    for key in get_sizes().iterkeys():
-        image = os.path.join(settings.MEDIA_ROOT, key, instance.image.name)
+    
+    for key in Settings().get_sizes():
+        image = os.path.join(settings.MEDIA_ROOT, str(key), instance.image.name)
         if os.path.isfile(image):
             os.remove(image)
 
 def resize_signals():
+    """Connects signals for resizing and deletion"""
+
     for model in find_models_with_field(models.ImageField):
         post_save.connect(resize_multiple, sender = model)
         pre_delete.connect(delete_resized_images, sender = model)
