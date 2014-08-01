@@ -16,7 +16,7 @@ class Settings(object):
         try:
             self.default = settings.MEDIA_HELPER_DEFAULT
         except:
-            sekf.default = default
+            self.default = default
         try:
             self.auto = settings.MEDIA_HELPER_AUTO_SIZES
         except AttributeError:

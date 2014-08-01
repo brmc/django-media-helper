@@ -1,24 +1,32 @@
 #from pillow import Image
 
 from django.test import TestCase
-
+from django.conf import settings
 #from football.models import Test
 
 class ResizerTest(TestCase):
-    sizes = {
+    scaling_factors = {
             '2': 0.1,
             '10': 0.5,
             '20': 1.0
         }
+    sizes = [2, 10, 20]
 
     def test_get_sizes(self):
-        from django_cleanup.resizer import get_sizes
-
+        from media_helper.settings import Settings
+        
         settings.MEDIA_HELPER_SIZES =[2, 10, 20]
         
-        sizes = get_sizes()
+        sizes = Settings().get_sizes()
 
         self.assertEqual(sizes, self.sizes)
+
+    def test_get_scaling_factors(self):
+        from media_helper.settings import Settings
+        
+        scaling_factors = Settings(maximum = 200, sizes = self.sizes).generate_scaling_factors(widths = self.sizes)
+        scaling_factors
+        self.assertEqual(scaling_factors, self.scaling_factors)
 
     def test_find_models_with_imagefield(self):
         from django_cleanup.resizer import find_models_with_imagefield

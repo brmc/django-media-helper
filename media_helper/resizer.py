@@ -88,6 +88,7 @@ def resize_multiple(sender, instance, *args, **kwargs):
     '''
     This resizes images based on user-defined settings.
     '''
+    
     # Root path in which to create directories for different
     # resolutions
     media_root = settings.MEDIA_ROOT
@@ -99,7 +100,6 @@ def resize_multiple(sender, instance, *args, **kwargs):
     # check to see how ImageField validates filenames.
     
     
-    #sizes = get_sizes()
     sizes = Settings().generate_scaling_factors()
     create_directories(media_root, sizes, instance.image.field.upload_to)
     
@@ -126,12 +126,11 @@ def resize_all(media_root, width):
     upload_dirs = find_upload_dirs(find_models_with_field(models.ImageField))
     
     for upload_dir in upload_dirs:
-        # Source dir of images to be resized
+        # Source dir from which images will be resized
         source_dir = os.path.join(media_root, upload_dir)
         
         if os.path.isdir(source_dir):
             resize_dir = os.path.join(media_root, width, upload_dir)
-            
             create_directories(media_root, new_size, upload_dir)
             
             for subdir, dirs, files in os.walk(source_dir):
@@ -140,10 +139,7 @@ def resize_all(media_root, width):
                     
                     if not os.path.isfile(new_file):
                         image_path = os.path.join(subdir, file)
-                        #image = Image.open(image_path)
-
-                        # This is ugly because django prepends the upload_to dir to the filename when
-                        # saving.  It works, but I need to clean it up.
+                        
                         resize(media_root, new_size.keys()[0], new_size.values()[0], image_path)
 
     

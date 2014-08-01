@@ -26,19 +26,22 @@ class InterceptMediaRequest(object):
             
             # [1:] in case PROJECT_PATH isn't defined, it will not duplicate the 
             # MEDIA_URL in the path
-            new_request_path = request.path.strip("/").split('/')[1:]
+            # [1:] is used because 
+            root = set(settings.MEDIA_ROOT.strip('/').split('/'))
+            url =  set(request.path.strip('/').split('/'))
+            diff = list(root & url)
+
+            new_request_path = request.path.strip('/').split('/')[1:]
+
 
             if folder in new_request_path:
                 return response 
-            # This will be the redirect path 
-            new_request_path.insert(0, folder)
+            
+            new_request_path.insert(0, folder)  # This will be the redirect path 
             
             system_path = os.path.join(settings.MEDIA_ROOT, *new_request_path)
-            #print "system path", system_path
-            #print "is file", os.path.isfile(system_path) 
+            
             if os.path.isfile(system_path):   
-                #print "last file name, ", request.session.get('last_file_name')
-
                 return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, *new_request_path))
             else:
                 # Resizes image
@@ -49,9 +52,6 @@ class InterceptMediaRequest(object):
                 
                 if os.path.isfile(image_path):
                     resize(settings.MEDIA_ROOT, folder, media_helper_settings.generate_scaling_factors()[folder], image_path)
-                    request.session['resized'] = True
-                else:
-                    request.session['resized'] = True
 
             return response
 
