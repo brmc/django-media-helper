@@ -39,6 +39,7 @@ def remove_old_files(sender, instance, **kwargs):
         old_file = getattr(old_instance, field.name)
         new_file = getattr(instance, field.name)
         storage = old_file.storage
+        
         if old_file and old_file != new_file and storage and storage.exists(old_file.name):
             try:
                 storage.delete(old_file.name)

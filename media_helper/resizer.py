@@ -3,9 +3,9 @@ import os
 from PIL import Image
 
 import django
+from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save, pre_delete
-from django.conf import settings
 from .settings import Settings
 
 def find_models_with_field(field_type): 
@@ -25,7 +25,7 @@ def find_models_with_field(field_type):
                 break
     return result
 
-def find_upload_dirs(model_list):
+def find_upload_dirs(*model_list):
     """Finds all upload_to directories for ImageFields
 
     Arguments:
@@ -41,8 +41,25 @@ def find_upload_dirs(model_list):
 
     return dirs
 
+def find_field_attribute(attribute, *model_list):
+    """ Returns ImageField attributes
+
+    So far this is just used to return the upload paths or field names.
+
+    :param attribute: 
+
+    """
+
+    attributes = []
+    for model in model_list:
+        for field in model._meta.fields:
+            if isinstance(field, models.ImageField) and field.upload_to is not '.':
+                attributes.append(getattr(field, attribute))
+
+    return attributes
+
 def create_directories(media_root, sizes, upload_to):
-    ''' Creates new directories in the media directory
+    """ Creates new directories in the media directory
 
     Duplicates the directory structure of each upload_to for a series
     of sizes or screen widths
@@ -54,7 +71,7 @@ def create_directories(media_root, sizes, upload_to):
     :type media_root: string
     :param upload_to: upload directory defined in field definition
     :type upload_to: string
-    '''
+    """
 
     for key in sizes.iterkeys():
         new_dir = os.path.join(media_root,key, upload_to)
@@ -62,74 +79,86 @@ def create_directories(media_root, sizes, upload_to):
             os.makedirs(new_dir)
 
 def resize(media_root, folder, scaling_factor, image_path):
+    """ A single image is resized and saved to a new directory.
+
+    Arguments:
+    :param media_root: the root path where the image will be saved
+    :type media_root: string
+    :param: folder: the new folder 
+    :type  folder: string
+    :param scaling_factor: factor by which the image will be scaled
+    :type scaling_factor: float
+    :param image_path: the upload_to directory and the file name 
+    :type image_path: string
+    :returns: None
+    """
+
     from PIL import Image
 
-    image = Image.open(image_path)
-
-    # This is necessary because django prepends upload_to to the filename when saving
     image_name = image_path.split(settings.MEDIA_URL)[-1]
-    width, height = image.size
     encoding = image_name.split('.')[-1]
 
     if encoding.lower() == "jpg":
         encoding = "jpeg"
 
+    if encoding not in Settings().allowed_encodings:
+        return
+
+    image = Image.open(image_path)
+    
+    width, height = image.size
+
     new_image = image.resize((int(width * scaling_factor),int(height * scaling_factor)) , Image.ANTIALIAS)
 
     try:
-        print os.path.join(media_root, folder, image_name)
         new_image.save(os.path.join(media_root, folder, image_name), encoding,  quality=85)
-        #print os.path.join(media_root, folder, image_name)
+    
     except KeyError:
         print "Unknown encoding or bad file name"
         raise
 
-def resize_multiple(sender, instance, *args, **kwargs):
-    '''
-    This resizes images based on user-defined settings.
-    '''
+def resize_on_save(sender, instance, *args, **kwargs):
+    """ Resizes an image when a model field is saved according to user-defined settings.
+    """
     
-    # Root path in which to create directories for different
-    # resolutions
     media_root = settings.MEDIA_ROOT
 
-    # This assumes too much.  I should make this a bit more idiot-proof
-    # In an ideal situation, this strips the filetype from the end of
-    # the file name to be used later when encoding the scaled images
-    # hrm...now that I think of it, this might actually be ok.  I should
-    # check to see how ImageField validates filenames.
-    
-    
     sizes = Settings().generate_scaling_factors()
-    create_directories(media_root, sizes, instance.image.field.upload_to)
+
+    for directory in find_field_attribute("upload_to", instance):
+        print directory
+        create_directories(media_root, sizes, directory)
     
     # sets full path of image to be opened
-    item_path = os.path.join(media_root, instance.image.name)
-    image = Image.open(item_path)
-
-    #width, height = image.size
-
-    # iterates over sizes, scales, and saves accordingly.
-    for key, val in sizes.iteritems():
-        resize(media_root, key, val, item_path)
+    print find_field_attribute("name", instance)
+    for name in find_field_attribute("name", instance):
+        image_path = getattr(instance, name).file.name
+        
+        # iterates over sizes, scales, and saves accordingly.
+        for key, val in sizes.iteritems():
+            print key
+            resize(media_root, key, val, image_path)
 
 
 
 def resize_all(media_root, width):
-    ''' Resizes all images in upload directories for a new screen width
+    """ Resizes all images in upload directories for a new screen width
 
     :param root MEDIA_ROOT
     :param width: a string representation of an integer
-    '''
+    """
 
     new_size = Settings().generate_scaling_factors([width,]) 
-    upload_dirs = find_upload_dirs(find_models_with_field(models.ImageField))
+    upload_dirs = find_field_attribute("upload_to", *find_models_with_field(models.ImageField))
     
+    # This block iterates through upload_to directories, each sub directory,
+    # and finally resizes each file.
     for upload_dir in upload_dirs:
         # Source dir from which images will be resized
         source_dir = os.path.join(media_root, upload_dir)
         
         if os.path.isdir(source_dir):
+            # The directory for the newly scaled images
             resize_dir = os.path.join(media_root, width, upload_dir)
             create_directories(media_root, new_size, upload_dir)
             
@@ -144,19 +173,18 @@ def resize_all(media_root, width):
 
     
 def delete_resized_images(sender, instance, *args, **kwargs):
-    '''
-    Iterates over the defined sizes, and deletes images in those directories
-    '''
+    """ Deletes all scaled images """
     
     for key in Settings().get_sizes():
-        image = os.path.join(settings.MEDIA_ROOT, str(key), instance.image.name)
-        if os.path.isfile(image):
-            os.remove(image)
+        for name in find_field_attribute("name", instance): 
+            image = os.path.join(settings.MEDIA_ROOT, str(key), getattr(instance, name).name)
+            if os.path.isfile(image):
+                os.remove(image)
 
 def resize_signals():
     """Connects signals for resizing and deletion"""
 
     for model in find_models_with_field(models.ImageField):
-        post_save.connect(resize_multiple, sender = model)
+        post_save.connect(resize_on_save, sender = model)
         pre_delete.connect(delete_resized_images, sender = model)
 

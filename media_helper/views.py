@@ -10,11 +10,11 @@ def resolution(request):
     '''Sets new session variable based on screen width'''
     if request.is_ajax():
         import os
+
         width = request.POST['width']
-       
         new_path = os.path.join(dj_settings.MEDIA_ROOT, width)
-        #print resolution
         size = Settings().generate_scaling_factors([width,])
+        
         if os.path.exists(new_path):
            pass
         else:

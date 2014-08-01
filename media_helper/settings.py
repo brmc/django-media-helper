@@ -9,6 +9,7 @@ class Settings(object):
             minimum = 800, 
             step_size = 220,
             default = 1920,
+            allowed_encodings = ['jpg', 'jpeg', 'png'],
             *args, 
             **kwargs
         ):
@@ -31,11 +32,16 @@ class Settings(object):
             self.maximum = settings.MEDIA_HELPER_MAX
             self.minimum = settings.MEDIA_HELPER_MIN
             self.step_size = settings.MEDIA_HELPER_STEP_SIZE
-         
+
         except AttributeError:
             self.maximum = maximum
             self.minimum = minimum
             self.step_size = step_size
+
+        try:
+            self.allowed_encodings = settings.MEDIA_HELPER_ALLOWED_ENCODINGS
+        except AttributeError:
+            self.allowed_encodings = allowed_encodings
 
         if self.maximum < self.minimum:
              self.maximum, self.minimum = minimum, maximum
