@@ -45,15 +45,69 @@ $(document).ready(function(){
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
            }
         }
-    });  
+    }); 
+
+    function strip_path(path, position){
+        position = typeof position !== 'undefined' ? position : 4;
+        return path.split('/').slice(position).join("/");
+        
+    }
+    function new_width(element){
+        return Math.ceil(element.width() * window.screen.width/$(window).width())
+    }
+
+    var images = "[";
+    var image = ""
+    $('img').each(function(){
+        image = strip_path($(this)[0].src);
+        images += "('" + image + "'," + new_width($(this)) + "), ";
+    });
+
+    images += "]";
+
+
+    backgrounds = "["
+    background_list = []
+
+    $('div').each(function(){
+        if ($(this).css('background-image') != "none"){
+            background = strip_path($(this).css('background-image'));
+            backgrounds += "('" + background.substring(0, background.length-1) + "'," + new_width($(this)) + "), ";
+            background_list.push($(this));
+        }
+    });
+
+    backgrounds += "]"
+    //alert(backgrounds + images);
+    //backgrounds = find_backgrounds()
+    function update_images(data){
+        alert(data.length)
+        //a = $.parseJSON(data[0]);
+        //$.each(data), function(){
+            //alert($(this));
+        //}
+    }
     $.ajax({
         type: "POST",
         url: '/media-helper/resolution/',
         data: {
             'width' :window.screen.width,
-            'height': window.screen.height
+            'height': window.screen.height,
+            'images': images,
+            'backgrounds': backgrounds
         },
-        success: null,
+        success: function(data){
+            $('img').each(function(){
+                //alert(data['images']['/media/bilder/Logo_jumediavision.png']);
+                //alert(data['images']["/" + strip_path($(this)[0].src, 3)]);
+                $(this).attr('src', data['images']["/" + strip_path($(this)[0].src, 3)]);
+            });
+            $.each(background_list, function(){
+                url = $(this).css('background-image').split("(")[1].split(")")[0];
+                $(this).css('background-image', 'url("' + data['backgrounds']["/" + strip_path(url, 3)] + '")');
+
+            });
+        }
         
     });
 });
