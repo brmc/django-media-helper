@@ -33,36 +33,36 @@ def create_image_path(images):
     import os
     new_images = {}
     for image in images:
-            old_request_path = os.path.join(dj_settings.MEDIA_URL, image[0])
-            encoding = image[0].split(".")[-1]
+        old_request_path = os.path.join(dj_settings.MEDIA_URL, image[0])
+        encoding = image[0].split(".")[-1]
 
-            if encoding.lower() == "jpg":
-                encoding = "jpeg"
+        if encoding.lower() == "jpg":
+            encoding = "jpeg"
 
-            if encoding not in Settings().allowed_encodings:
-                new_images[old_request_path] = old_request_path
-                break
-            
-            tail = "/".join([
-                'media-helper',
-                image[0], 
-                "%d.%s" % (image[1], encoding)
-                ])
+        if encoding not in Settings().allowed_encodings:
+            new_images[old_request_path] = old_request_path
+            break
+        
+        tail = "/".join([
+            'media-helper',
+            image[0], 
+            "%d.%s" % (image[1], encoding)
+            ])
 
-            new_request_path = os.path.join(dj_settings.MEDIA_URL, tail)
-            
-            new_image_path = os.path.join(dj_settings.MEDIA_ROOT, tail)
-             
-            if os.path.isfile(new_image_path):
+        new_request_path = os.path.join(dj_settings.MEDIA_URL, tail)
+        
+        new_image_path = os.path.join(dj_settings.MEDIA_ROOT, tail)
+         
+        if os.path.isfile(new_image_path):
+            new_images[old_request_path] = new_request_path
+        else:
+            print "resizing"
+            # This is where the round problem starts
+            if resize_exact(image[0], image[1]) == True:
+                print "no path"
                 new_images[old_request_path] = new_request_path
             else:
-                print "resizing"
-                # This is where the round problem starts
-                if resize_exact(image[0], image[1]) == True:
-                    print "no path"
-                    new_images[old_request_path] = new_request_path
-                else:
-                    new_images[old_request_path] = old_request_path            
+                new_images[old_request_path] = old_request_path            
 
     return new_images
 
@@ -76,32 +76,15 @@ def resolution(request):
         width = request.POST['width']
         images = literal_eval(request.POST['images'])
         backgrounds = literal_eval(request.POST['backgrounds'])
-        print images
-
-        #new_image_path = os.path.join(dj_settings.MEDIA_ROOT, width)
-        #size = Settings().generate_scaling_factors([width,])
         
-        '''if os.path.exists(new_image_path):
-           pass
-        else:
-            #resize_all(dj_settings.MEDIA_ROOT, width )
-            resize_exact()
-
-            new_images = []
-'''
-        # create_image_path does more than just create the path
-        # If the image doesn't exist, it also creates the image
         new_images = create_image_path(images)
         new_backgrounds = create_image_path(backgrounds)
         
-
         json = { 'images' : new_images, }
 
         json['backgrounds'] = new_backgrounds
         json = dumps(json)
-                
-        print json
-            
+
         request.session['width'] = width
         return HttpResponse(json, content_type = "application/json")
 
