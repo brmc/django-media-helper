@@ -58,7 +58,7 @@ def find_field_attribute(attribute, *model_list):
 
     return attributes
 
-def create_directories(media_root, sizes, *upload_to):
+def create_directories(media_root, sizes, image_name, *upload_to):
     """ Creates new directories in the media directory
 
     Duplicates the directory structure of each upload_to for a series
@@ -75,7 +75,7 @@ def create_directories(media_root, sizes, *upload_to):
 
     for key in sizes.iterkeys():
         for directory in upload_to:
-            new_dir = os.path.join(media_root, 'media-helper', key, directory)
+            new_dir = os.path.join(media_root, 'media-helper', image_name)
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
 
@@ -152,10 +152,10 @@ def resize_exact(image_path, new_width):
     scaling_factor = float(new_width) / float(width)
 
     new_image = image.resize((new_width, int(height * scaling_factor)) , Image.ANTIALIAS)
-    create_directories(settings.MEDIA_ROOT, {str(new_width): new_width}, *find_field_attribute("upload_to", *find_models_with_field(models.ImageField)))
+    create_directories(settings.MEDIA_ROOT, {str(new_width): new_width}, image_name, *find_field_attribute("upload_to", *find_models_with_field(models.ImageField)))
 
     try:
-        new_image.save(os.path.join(new_media_root, str(new_width), image_name), encoding,  quality=85)
+        new_image.save(os.path.join(new_media_root, image_name, str(new_width) + "." + encoding,), encoding,  quality=85)
         return True
     except KeyError:
         print "Unknown encoding or bad file name"

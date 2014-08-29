@@ -1,3 +1,4 @@
+<script>
 // this was taken directly from https://docs.djangoproject.com/en/1.6/ref/contrib/csrf/
 // except for the last couple lines.  You should edit the ajax request to fit your needs
 
@@ -47,50 +48,69 @@ $(document).ready(function(){
         }
     }); 
 
+
+
     function strip_path(path, position){
         // If position is not defined, set it to 4
         
-        media_root = 
+        /*media_url = {{ MEDIA_URL }};
+        host = window.location.origin;
+        path.replace(media_url, )
+*/
         path.replace(window.location.origin, "")
         position = typeof position !== 'undefined' ? position : 4;
         return path.split('/').slice(position).join("/");
         
     }
     function new_width(element){
-        return Math.floor(element.width() * window.screen.width/$(window).width())
+        return parseInt(element.width() * window.screen.width/$(window).width());
     }
 
+    {% comment %}
+    I'm sure there's a better way to do this, but I'll get around to doing that later.
+
+    We're going to create a string that will be converted to a python list of tuples on the server-side.
+    It will look like this:
+    [ 
+        (<upload-folder>/<filename>, <new image size>), 
+    ]
+    {% endcomment %}
     var images = "[";
     var image = ""
     $('img').each(function(){
+
         image = strip_path($(this)[0].src);
         images += "('" + image + "'," + new_width($(this)) + "), ";
     });
 
     images += "]";
 
- 
+    {% comment %}
+        A similar method as above, but because browsers return the background-image path differently, a few modifications 
+        must be made.
+
+        Ulimately a similar string will be created.
+
+    {% endcomment %}
     backgrounds = "["
     background_list = []
 
     $('div').each(function(){
         if ($(this).css('background-image') != "none"){
             background = strip_path($(this).css('background-image'));
+            
+            {# the stripping pattern works for the back ground image, but there is a closing parenthesis to consider #}
             backgrounds += "('" + background.substring(0, background.length-1) + "'," + new_width($(this)) + "), ";
             background_list.push($(this));
         }
     });
 
     backgrounds += "]"
-    //alert(backgrounds + images);
-    //backgrounds = find_backgrounds()
+    
     function update_images(data){
-        alert(data.length)
-        //a = $.parseJSON(data[0]);
-        //$.each(data), function(){
-            //alert($(this));
-        //}
+        alert(data.length)    
     }
+
     $.ajax({
         type: "POST",
         url: '/media-helper/resolution/',
@@ -102,8 +122,21 @@ $(document).ready(function(){
         },
         success: function(data){
             $('img').each(function(){
-                //alert(data['images']['/media/bilder/Logo_jumediavision.png']);
-                //alert(data['images']["/" + strip_path($(this)[0].src, 3)]);
+                {# for each image, search the returned dict for a new request path #}
+                {% comment %}
+                    Just a reminder what is sent to the server and what is returned
+                    sent:
+                    [ 
+                        (<upload_to>/<filename.ext>, <new size>), 
+                    ]
+
+                    returned:
+                    {
+                        'MEDIA_URL/<upload_to>/filename.ext': 'MEDIA_URL/<upload_to>/<size>/filename.ext'
+                    }
+                {% endcomment %}
+
+                {# this time the MEDIA_URL is prepended, so we're stripping more off #}
                 $(this).attr('src', data['images']["/" + strip_path($(this)[0].src, 3)]);
             });
             $.each(background_list, function(){
@@ -115,3 +148,4 @@ $(document).ready(function(){
         
     });
 });
+</script>

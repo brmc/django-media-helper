@@ -7,18 +7,59 @@ from media_helper.settings import Settings
 from .resizer import resize_all, resize, resize_exact
 
 def create_image_path(images):
+    ''' Constructs a new image path for the appropriately sized image
+
+    Currently:
+        prepends MEDIA_URL to the path
+        prepends <image size in px> to the path
+
+        current form:
+        MEDIA_URL/<upload_to>/<size>/filename.ext
+    Should:
+        prepend MEDIA_URL
+        prepend 'media_helper/'
+        append 'filename.ext/' as directory
+        append '<image size>.ext' as file
+
+        final form:
+        media_helper/<upload_to>/filename.ext/<size>.jpg
+
+    Arguments:
+    :param images: images paired with their new sizes
+    :type images: list of tuples of strings
+    :returns: dict 
+    '''
+
     import os
     new_images = {}
     for image in images:
             old_request_path = os.path.join(dj_settings.MEDIA_URL, image[0])
-            new_image_path = os.path.join(dj_settings.MEDIA_ROOT, str(image[1]), image[0])
-            new_request_path = os.path.join(dj_settings.MEDIA_URL, str(image[1]), image[0])
-            print new_image_path == new_request_path    
+            encoding = image[0].split(".")[-1]
+
+            if encoding.lower() == "jpg":
+                encoding = "jpeg"
+
+            if encoding not in Settings().allowed_encodings:
+                new_images[old_request_path] = old_request_path
+                break
+            
+            tail = "/".join([
+                'media-helper',
+                image[0], 
+                "%d.%s" % (image[1], encoding)
+                ])
+
+            new_request_path = os.path.join(dj_settings.MEDIA_URL, tail)
+            
+            new_image_path = os.path.join(dj_settings.MEDIA_ROOT, tail)
+             
             if os.path.isfile(new_image_path):
                 new_images[old_request_path] = new_request_path
             else:
                 print "resizing"
+                # This is where the round problem starts
                 if resize_exact(image[0], image[1]) == True:
+                    print "no path"
                     new_images[old_request_path] = new_request_path
                 else:
                     new_images[old_request_path] = old_request_path            
@@ -48,7 +89,8 @@ def resolution(request):
 
             new_images = []
 '''
-
+        # create_image_path does more than just create the path
+        # If the image doesn't exist, it also creates the image
         new_images = create_image_path(images)
         new_backgrounds = create_image_path(backgrounds)
         
