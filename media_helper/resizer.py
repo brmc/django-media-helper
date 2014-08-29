@@ -75,7 +75,7 @@ def create_directories(media_root, sizes, *upload_to):
 
     for key in sizes.iterkeys():
         for directory in upload_to:
-            new_dir = os.path.join(media_root,key, directory)
+            new_dir = os.path.join(media_root, 'media-helper', key, directory)
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
 
@@ -132,13 +132,13 @@ def resize_exact(image_path, new_width):
     :type image_path: string
     :returns: None
     """
-
     from PIL import Image
 
     image_name = image_path.split(settings.MEDIA_URL)[-1]
     encoding = image_name.split('.')[-1]
     image_path = os.path.join(settings.MEDIA_ROOT, image_name)
-
+    new_media_root = os.path.join(settings.MEDIA_ROOT, 'media-helper')
+    #new_media_root = settings.MEDIA_ROOT
     # Accomodating for PIL's shortcoming
     if encoding.lower() == "jpg":
         encoding = "jpeg"
@@ -155,7 +155,7 @@ def resize_exact(image_path, new_width):
     create_directories(settings.MEDIA_ROOT, {str(new_width): new_width}, *find_field_attribute("upload_to", *find_models_with_field(models.ImageField)))
 
     try:
-        new_image.save(os.path.join(settings.MEDIA_ROOT, str(new_width), image_name), encoding,  quality=85)
+        new_image.save(os.path.join(new_media_root, str(new_width), image_name), encoding,  quality=85)
         return True
     except KeyError:
         print "Unknown encoding or bad file name"
@@ -167,20 +167,22 @@ def resize_on_save(sender, instance, *args, **kwargs):
     """ Resizes an image when a model field is saved according to user-defined settings.
     """
     
-    media_root = settings.MEDIA_ROOT
+    media_root = os.path.join(settings.MEDIA_ROOT, 'media-helper')
 
-    sizes = Settings().generate_scaling_factors()
+    sizes = Settings().get_sizes()
 
-    for directory in find_field_attribute("upload_to", instance):
-        create_directories(media_root, sizes, directory)
+    #for directory in find_field_attribute("upload_to", instance):
+    #    create_directories(media_root, sizes, directory)
     
     # sets full path of image to be opened
     for name in find_field_attribute("name", instance):
         image_path = getattr(instance, name).file.name
-        
+        image = Image.open(image_path)
+    
+        width, height = image.size
         # iterates over sizes, scales, and saves accordingly.
-        for key, val in sizes.iteritems():
-            resize(media_root, key, val, image_path)
+        for size in sizes:
+            resize_exact(image_path, int(size * width))
 
 
 

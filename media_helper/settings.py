@@ -1,14 +1,17 @@
 from django.conf import settings
 
+#sizes = [768, 800, 1024, 1093, 1152, 1280, 1360, 1400, 1440, 1536, 1600, 1680, 1920, 2048, 2560], 
+            
 class Settings(object):
     def __init__(
             self, 
             auto = False, 
-            sizes = [768, 800, 1024, 1093, 1152, 1280, 1360, 1400, 1440, 1536, 1600, 1680, 1920, 2048, 2560], 
+            sizes = [0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875, 0.5625, 0.6, 0.625, 0.65625, 0.75, 0.8, 1.0],
             maximum = 2560, 
             minimum = 800, 
             step_size = 220,
-            default = 1920,
+            default = .4,
+            default_folder = 'media-helper-default',
             allowed_encodings = ['jpg', 'jpeg', 'png'],
             *args, 
             **kwargs
@@ -16,8 +19,10 @@ class Settings(object):
 
         try:
             self.default = settings.MEDIA_HELPER_DEFAULT
+            self.default_folder = settings.MEDIA_HELPER_DEFAULT_FOLDER
         except:
             self.default = default
+            self.default_folder = default_folder
         try:
             self.auto = settings.MEDIA_HELPER_AUTO_SIZES
         except AttributeError:
