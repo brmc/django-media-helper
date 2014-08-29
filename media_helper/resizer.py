@@ -73,6 +73,8 @@ def create_directories(media_root, sizes, image_name, *upload_to):
     :type upload_to: string
     """
 
+    # This needs to be optimized after the path schema changed.  It works, but
+    # is wasteful
     for key in sizes.iterkeys():
         for directory in upload_to:
             new_dir = os.path.join(media_root, 'media-helper', image_name)
@@ -112,7 +114,7 @@ def resize(media_root, folder, scaling_factor, image_path):
     new_image = image.resize((int(width * scaling_factor),int(height * scaling_factor)) , Image.ANTIALIAS)
 
     try:
-        new_image.save(os.path.join(media_root, folder, image_name), encoding,  quality=85)
+        new_image.save(os.path.join(media_root, folder, image_name), encoding,  optimize = True, quality=85)
     
     except KeyError:
         print "Unknown encoding or bad file name"
@@ -138,7 +140,7 @@ def resize_exact(image_path, new_width):
     encoding = image_name.split('.')[-1]
     image_path = os.path.join(settings.MEDIA_ROOT, image_name)
     new_media_root = os.path.join(settings.MEDIA_ROOT, 'media-helper')
-    #new_media_root = settings.MEDIA_ROOT
+    
     # Accomodating for PIL's shortcoming
     if encoding.lower() == "jpg":
         encoding = "jpeg"
@@ -185,7 +187,6 @@ def resize_on_save(sender, instance, *args, **kwargs):
             resize_exact(image_path, int(size * width))
 
 
-
 def resize_all(media_root, width):
     """ Resizes all images in upload directories for a new screen width
 
@@ -218,13 +219,14 @@ def resize_all(media_root, width):
 
     
 def delete_resized_images(sender, instance, *args, **kwargs):
-    """ Deletes all scaled images """
+    """ Deletes all scaled images folder when image is deleted """
+    import shutil
     
-    for key in Settings().get_sizes():
-        for name in find_field_attribute("name", instance): 
-            image = os.path.join(settings.MEDIA_ROOT, str(key), getattr(instance, name).name)
-            if os.path.isfile(image):
-                os.remove(image)
+    for name in find_field_attribute("name", instance):
+        directory = os.path.join(settings.MEDIA_ROOT, 'media-helper', getattr(instance, name).name)
+        if os.path.isdir(directory):
+            shutil.rmtree(directory)
+    
 
 def resize_signals():
     """Connects signals for resizing and deletion"""
