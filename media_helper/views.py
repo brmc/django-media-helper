@@ -56,10 +56,8 @@ def create_image_path(images):
         if os.path.isfile(new_image_path):
             new_images[old_request_path] = new_request_path
         else:
-            print "resizing"
             # This is where the round problem starts
             if resize_exact(image[0], image[1]) == True:
-                print "no path"
                 new_images[old_request_path] = new_request_path
             else:
                 new_images[old_request_path] = old_request_path            
