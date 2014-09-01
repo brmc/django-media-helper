@@ -50,7 +50,7 @@ $(document).ready(function(){
     function strip_path(path, position){
         // If position is not defined, set it to 4
         
-        media_root = 
+        //media_root = 
         path.replace(window.location.origin, "")
         position = typeof position !== 'undefined' ? position : 4;
         return path.split('/').slice(position).join("/");
@@ -76,8 +76,10 @@ $(document).ready(function(){
     $('div').each(function(){
         if ($(this).css('background-image') != "none"){
             background = strip_path($(this).css('background-image'));
-            backgrounds += "('" + background.substring(0, background.length-1) + "'," + new_width($(this)) + "), ";
-            background_list.push($(this));
+            if background != "undefined"{
+                backgrounds += "('" + background.substring(0, background.length-1) + "'," + new_width($(this)) + "), ";
+                background_list.push($(this));
+            }
         }
     });
 
@@ -91,6 +93,7 @@ $(document).ready(function(){
             //alert($(this));
         //}
     }
+    alert(1);
     $.ajax({
         type: "POST",
         url: '/media-helper/resolution/',
@@ -107,8 +110,10 @@ $(document).ready(function(){
                 $(this).attr('src', data['images']["/" + strip_path($(this)[0].src, 3)]);
             });
             $.each(background_list, function(){
-                url = $(this).css('background-image').split("(")[1].split(")")[0];
-                $(this).css('background-image', 'url("' + data['backgrounds']["/" + strip_path(url, 3)] + '")');
+                if $(this) != undefined{
+                    url = $(this).css('background-image').split("(")[1].split(")")[0];
+                    $(this).css('background-image', 'url("' + data['backgrounds']["/" + strip_path(url, 3)] + '")');
+                }
 
             });
         }

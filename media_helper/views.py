@@ -4,86 +4,97 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
 from django.conf import settings as dj_settings
 from media_helper.settings import Settings
-from .resizer import resize_all, resize, resize_exact
+from .resizer import resize_all, resize, construct_paths, check_encoding
 
-def create_image_path(images):
+def get_resized_images(images):
     ''' Constructs a new image path for the appropriately sized image
+    
+    If an image can't be resized, it falls back to the default image.
 
-    Currently:
-        prepends MEDIA_URL to the path
-        prepends <image size in px> to the path
+    Changes have been made.
+    Previously it:
+        prepended MEDIA_URL to the path
+        prepended <image size in px> to the path
+
+        previous form:
+        MEDIA_URL/<upload_to>/<size>/filename.ext
+
+        Now it:
+        prepends MEDIA_URL
+        prepends 'media_helper/'
+        appends 'filename.ext/' as directory
+        appends '<image size>.ext' as file
 
         current form:
-        MEDIA_URL/<upload_to>/<size>/filename.ext
-    Should:
-        prepend MEDIA_URL
-        prepend 'media_helper/'
-        append 'filename.ext/' as directory
-        append '<image size>.ext' as file
-
-        final form:
         media_helper/<upload_to>/filename.ext/<size>.jpg
 
     Arguments:
     :param images: images paired with their new sizes
+        image[0]: 'upload_to/image.ext'
+        image[1]: integer
     :type images: list of tuples of strings
     :returns: dict 
     '''
 
     import os
+
     new_images = {}
+
     for image in images:
-        old_request_path = os.path.join(dj_settings.MEDIA_URL, image[0])
-        encoding = image[0].split(".")[-1]
-
-        if encoding.lower() == "jpg":
-            encoding = "jpeg"
-
-        if encoding not in Settings().allowed_encodings:
-            new_images[old_request_path] = old_request_path
-            break
+        # These are paths that will be used often by this app.
+        paths = construct_paths(image[0])
+        old_request_path = paths['request_path']
         
-        tail = "/".join([
-            'media-helper',
-            image[0], 
-            "%d.%s" % (image[1], encoding)
-            ])
+        # Only certain types of encodings are allowed by the settings
+        encoding = check_encoding(image[0])
+        if not encoding:
+            continue
 
-        new_request_path = os.path.join(dj_settings.MEDIA_URL, tail)
-        
-        new_image_path = os.path.join(dj_settings.MEDIA_ROOT, tail)
-         
+        # New images will be named according to their size
+        # image[1] is an integer
+        tail = "%d.%s" % (image[1], encoding)            
+        new_request_path = os.path.join(paths['response_path'], tail)
+        new_image_path = os.path.join(paths['response_system_path'], tail)
+
         if os.path.isfile(new_image_path):
             new_images[old_request_path] = new_request_path
         else:
-            # This is where the round problem starts
-            if resize_exact(image[0], image[1]) == True:
+            if resize(image[0], image[1]) == True:
                 new_images[old_request_path] = new_request_path
             else:
-                new_images[old_request_path] = old_request_path            
+                # Fallback
+                new_images[old_request_path] = old_request_path           
 
     return new_images
 
 def resolution(request):
-    '''Sets new session variable based on screen width'''
+    ''' Finds or resizes images and returns them via ajax '''
+    
+    warnings.warn(
+        "The name of this view/URL pair will be changed in future versions. Its name no longer"\
+        "reflects its function.  Please take note.",
+        DeprecationWarning
+        )
+
     if request.is_ajax():
         import os
         from ast import literal_eval
         from json import dumps
 
-        width = request.POST['width']
-        images = literal_eval(request.POST['images'])
-        backgrounds = literal_eval(request.POST['backgrounds'])
-        
-        new_images = create_image_path(images)
-        new_backgrounds = create_image_path(backgrounds)
-        
-        json = { 'images' : new_images, }
+        json = {}
 
-        json['backgrounds'] = new_backgrounds
+        images = literal_eval(request.POST.get('images']))
+        if images is not None:
+            new_images = get_resized_images(images )
+            json['images'] = new_images
+
+        backgrounds = literal_eval(request.POST.get('backgrounds']))
+        if backgrounds is not None:
+            new_backgrounds = get_resized_images(backgrounds)
+            json['backgrounds'] = new_backgrounds
+        
         json = dumps(json)
 
-        request.session['width'] = width
         return HttpResponse(json, content_type = "application/json")
 
     else:

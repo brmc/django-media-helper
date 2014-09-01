@@ -57,9 +57,19 @@ $(document).ready(function(){
         host = window.location.origin;
         path.replace(media_url, )
 */
-        path.replace(window.location.origin, "")
-        position = typeof position !== 'undefined' ? position : 4;
-        return path.split('/').slice(position).join("/");
+        strip = [
+            
+            'url(',
+            window.location.origin,
+            ')',
+            '{{ MEDIA_URL }}',
+            '//'
+        ]
+        $.each(strip, function(){
+            path = path.replace(this, "");
+        })
+       
+        return path
         
     }
     function new_width(element){
@@ -98,15 +108,14 @@ $(document).ready(function(){
     $('div').each(function(){
         if ($(this).css('background-image') != "none"){
             background = strip_path($(this).css('background-image'));
-            
-            {# the stripping pattern works for the back ground image, but there is a closing parenthesis to consider #}
-            backgrounds += "('" + background.substring(0, background.length-1) + "'," + new_width($(this)) + "), ";
+             {# the stripping pattern works for the back ground image, but there is a closing parenthesis to consider #}
+            backgrounds += "('" + background + "'," + new_width($(this)) + "), ";
             background_list.push($(this));
         }
     });
 
     backgrounds += "]"
-    
+
     function update_images(data){
         alert(data.length)    
     }
@@ -137,11 +146,11 @@ $(document).ready(function(){
                 {% endcomment %}
 
                 {# this time the MEDIA_URL is prepended, so we're stripping more off #}
-                $(this).attr('src', data['images']["/" + strip_path($(this)[0].src, 3)]);
+                $(this).attr('src', data['images']["{{MEDIA_URL}}" + strip_path($(this)[0].src, 3)]);
             });
             $.each(background_list, function(){
                 url = $(this).css('background-image').split("(")[1].split(")")[0];
-                $(this).css('background-image', 'url("' + data['backgrounds']["/" + strip_path(url, 3)] + '")');
+                 $(this).css('background-image', 'url("' + data['backgrounds']["{{MEDIA_URL}}" + strip_path(url, 3)] + '")');
 
             });
         }

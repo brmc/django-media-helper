@@ -33,10 +33,10 @@ class ResizerTest(TestCase):
         from media_helper.resizer import find_models_with_field
         from media_helper.models import TestModel
         
-        m = [TestModel,]
+        m = TestModel
         n = find_models_with_field(models.ImageField)
 
-        self.assertEqual(m,n)
+        self.assertTrue(n.count(m) == 1)
 
     def test_find_field_attribute(self):
         from media_helper.models import TestModel
@@ -91,7 +91,7 @@ class ResizerTest(TestCase):
         
         test.image.save(image_path, File(image))
         test.save()
-        post_save.send(instance = test)
+        post_save.send(resize_on_save, instance = test)
         
 
         self.assertTrue(True)
@@ -101,10 +101,10 @@ class ResizerTest(TestCase):
         import shutil
         from django.conf import settings
         from .resizer import create_directories
-        create_directories(settings.MEDIA_ROOT, self.scaling_factors, "pathname")
+        create_directories(settings.MEDIA_ROOT, "pathname", "upload")
 
         for size in self.scaling_factors.iterkeys():
-            path = os.path.join(settings.MEDIA_ROOT, size, "pathname")
+            path = os.path.join(settings.MEDIA_ROOT, 'media-helper', "pathname")
             self.assertTrue(os.path.isdir(path))
             shutil.rmtree(os.path.join(settings.MEDIA_ROOT, size))
 
@@ -116,12 +116,12 @@ class ResizerTest(TestCase):
         self.assertFalse(settings.auto)
         self.assertEqual(
             settings.sizes, 
-            [768, 800, 1024, 1093, 1152, 1280, 1360, 1400, 1440, 1536, 1600, 1680, 1920, 2048, 2560]
+            [0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875, 0.5625, 0.6, 0.625, 0.65625, 0.75, 0.8, 1.0]
         )
 
         self.assertEqual(settings.maximum, 2560)
         self.assertEqual(settings.minimum, 800)
         self.assertEqual(settings.step_size, 220)
-        self.assertEqual(settings.default, 1920)
+        self.assertEqual(settings.default, .4)
         self.assertEqual(settings.allowed_encodings, ['jpg', 'jpeg', 'png'])
 
