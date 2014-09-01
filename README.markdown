@@ -1,6 +1,6 @@
-## django-media-helper
+# **django-media-helper** #
 
-# Quick start
+# Quick start #
 
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
 
@@ -32,7 +32,7 @@ urlpatterns = patterns('',
 
 That should be it for default functionality  
 
-## General Info
+# General Info #
 
 This is a simple drop-in app that automates file deletion and image resizing.  
 It should make your life a little bit easier while also speeding up your load   
@@ -61,15 +61,15 @@ From the django-cleanup docs:
     designed for such projects.
 
 
-## How does it work?
+# How does it work? #
 
-# Cleanup
+## File Cleanup ##
 `media_helper.cleanup` connects pre_save and post_delete signals to special   
 functions(these functions delete old files) for each model whose parent app    
 is listed in INSTALLED_APPS above 'media_helper'.  
 
 
-# Resizer
+## Image Resizing ##
 When you save an image, a couple things happen:  
 
 1. The original image is copied to a new location and kept safe   
@@ -82,7 +82,7 @@ image already exists, a new one will be re-sized. (this includes css
 background-images as well but not list-item-images).  If something goes wrong,  
 the low-res image will remain in place.  
 
-# Something to consider
+## Something to consider ##
 
 Resized images other than the default image are named and stored according to   
 their size.  For example, if an image `foo.png` was resized to be 300px wide,   
