@@ -1,6 +1,6 @@
 # **django-media-helper** #
 
-# Quick start #
+## Quick start ##
 
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
 
@@ -32,7 +32,7 @@ urlpatterns = patterns('',
 
 That should be it for default functionality  
 
-# General Info #
+## General Info ##
 
 This is a simple drop-in app that automates file deletion and image resizing.  
 It should make your life a little bit easier while also speeding up your load   
@@ -61,15 +61,15 @@ From the django-cleanup docs:
     designed for such projects.
 
 
-# How does it work? #
+## How does it work? ##
 
-## File Cleanup ##
+### File Cleanup ###
 `media_helper.cleanup` connects pre_save and post_delete signals to special   
 functions(these functions delete old files) for each model whose parent app    
 is listed in INSTALLED_APPS above 'media_helper'.  
 
 
-## Image Resizing ##
+### Image Resizing ###
 When you save an image, a couple things happen:  
 
 1. The original image is copied to a new location and kept safe   
@@ -82,7 +82,7 @@ image already exists, a new one will be re-sized. (this includes css
 background-images as well but not list-item-images).  If something goes wrong,  
 the low-res image will remain in place.  
 
-## Something to consider ##
+### Something to consider ###
 
 Resized images other than the default image are named and stored according to   
 their size.  For example, if an image `foo.png` was resized to be 300px wide,   
@@ -106,9 +106,9 @@ So if you are uncertain and SEO is of utmost importance to you, you might
 reconsider using this app.
 
 
-## Requirements
+## Requirements ##
 
-# Imaging
+### Imaging ###
 This app uses `Pillow` for image resizing.  If you've never used PIL or Pillow  
 before, aside from the base library itself, you're going to need to make sure   
 you have the appropriate development packages for each type of image you intend   
@@ -123,7 +123,7 @@ http://pillow.readthedocs.org/en/latest/installation.html#external-libraries
 
 And don't worry, Pillow pisses everyone off at some point.  
 
-# Ajax
+### Ajax ###
 
 Unless you plan to write the client-side AJAX requests yourself, you're going  
 to need jQuery.  It's pretty basic stuff, so any reasonably recent version   
@@ -132,7 +132,7 @@ should be fine.
 `<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>`  
 
 
-## Installation
+## Installation ##
     
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git  
 
@@ -167,11 +167,11 @@ know if I'll get into the specifics in this version, but what I'm doing is
 pretty straight-forward and basic.
 
 
-## Usage
+## Usage ##
 
 The rest is handled automatically.  Unless you want to configure things  
 
-## Configuration
+## Configuration ##
 
 ** There are several deprecated settings below, so be   
 
@@ -199,10 +199,6 @@ Default values:
     MEDIA_HELPER_STEP_SIZE = 320
 
 
-## What it does **not** do (...yet?)
+## What it does **not** do (...yet?) ##
 
 1. It does not scale up.  It only smaller images.  
-
-2. If the app was installed mid-project, legacy images will not be scaled  
-
-3. It does not scale images on the fly.
