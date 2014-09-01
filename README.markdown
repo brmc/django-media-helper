@@ -4,21 +4,28 @@
 
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git
 
-settings.py:
+**settings.py:**
 
     INSTALLED_APPS = (
             ...
             'media_helper', # should go after all your apps
         )
-urls.py:
+
+**urls.py:**
+
+
+```
+#!python
 
 urlpatterns = patterns('',
         ...
         url(r'^media-helper/', include('media_helper.urls')),
         ...
     )
+```
 
-Ttemplates:
+
+**Templates:**
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     {% include 'media-helper/ajax.html' %}
