@@ -204,4 +204,10 @@ Default values:
 
 ## What it does **not** do (...yet?) ##
 
-1. It does not scale up.  It only smaller images.  
+1. It does not scale up.  It only shrinks images.  
+
+2. It doesn't resize images found under STATIC_URL
+
+3. It doesn't handle javascript image zooming libraries very well, particularly  
+if they source the same image or the display is set to none
+

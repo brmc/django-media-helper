@@ -83,13 +83,13 @@ $(document).ready(function(){
     $('img').each(function(){
 
         image = strip_path($(this)[0].src);
-        if !(image.match("^/static")){
+        
            images += "('" + image + "'," + new_width($(this)) + "), ";
 
     });
 
     images += "]";
-
+alert(images);
     {% comment %}
         A similar method as above, but because browsers return the background-image path differently, a few modifications 
         must be made.
@@ -151,21 +151,6 @@ $(document).ready(function(){
         
     });
 });
-$(document).ready(function(){
-    container_height();
-    content_height();
-    scrollbar();
-    //menu_layout();
-    setTimeout(scrollbar, 3000);
-    
-    $(window).resize(function() {
-        container_height();
-        content_height();
-        scrollbar();
-        //menu_layout();
-    });
-    
 
-});
 </script>
 

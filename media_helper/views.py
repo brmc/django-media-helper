@@ -77,7 +77,7 @@ def resolution(request):
         DeprecationWarning
         )
     print dj_settings.STATIC_URL
-    if request.is_ajax() and not request.path.startswith(dj_settings.STATIC_URL):
+    if request.is_ajax():
         import os
         from ast import literal_eval
         from json import dumps
