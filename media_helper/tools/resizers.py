@@ -9,49 +9,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save, pre_delete
 from media_helper.settings import Settings
-
-def check_encoding(image_name):
-    ''' Checks for valid image encodings
-    
-    if the file extension is allowed, returns the encoding
-    otherwise, returns false
-
-    Arguments:
-    :param image_name: file name, can be relative or absolute
-    :type image_name: str
-    :returns: str or False
-    '''
-    encoding = image_name.split('.')[-1]
-
-    # Accomodating for PIL's shortcoming
-    if encoding.lower() == "jpg":
-        encoding = "jpeg"
-
-    if encoding not in Settings().allowed_encodings:
-        return False
-
-    return encoding
-
-def create_directories(directory, image_name):
-    """ Creates new directories in the media-helper directory
-
-    This creates an additional directory from the image name underwhich
-    corresponding resized images with be saved.
-
-    Arguments:
-    :param directory: root directory
-    :type directory: str
-    :param image_name: the name of the image including the upload_to dir
-    type image_name: str
-    """
-
-    # This needs to be optimized after the path schema changed.  It works, but
-    # is wasteful
-    
-    new_dir = os.path.join(directory, image_name)
-    if not os.path.exists(new_dir):
-        os.makedirs(new_dir)
-    
+from .helpers import construct_paths, check_encoding, create_directories
 
 def resize(image_path, new_width):
     """ A single image is resized and saved to a new directory.
@@ -93,30 +51,6 @@ def resize(image_path, new_width):
     except IOError:
         return False
 
-
-def construct_paths(image_name):
-    ''' Construcs a dict of commonly used paths 
-
-    :param image_name: the name of the image with the upload_to dir prepended
-    :type image_name: string
-    :returns: dict
-    '''
-    image_name = image_name.split(settings.MEDIA_URL)[-1]
-    encoding = check_encoding(image_name)
-
-    return {
-        'image_name': image_name,
-        'request_path': os.path.join(settings.MEDIA_URL, image_name),
-        'request_system_path': os.path.join(settings.MEDIA_ROOT, image_name),
-        'response_path': os.path.join(settings.MEDIA_URL, 'media-helper', image_name),
-        'media_helper_root': os.path.join(settings.MEDIA_ROOT, 'media-helper'),
-        'backup_path': os.path.join(settings.MEDIA_ROOT, 'media-helper', image_name, "original.%s" % encoding),
-        'response_system_path': os.path.join(settings.MEDIA_ROOT, 'media-helper', image_name)
-
-    }
-
-
-
 def move_original(image_path):
     ''' Copies the original image to a backup directory 
 
@@ -128,13 +62,10 @@ def move_original(image_path):
     '''
 
     import shutil
+
     
     paths = construct_paths(image_path)
-    
-    try:
-        image = Image.open(image_path)
-    except IOError:
-        return False
+    image = Image.open(image_path)
     encoding = check_encoding(paths['image_name'])
 
     if not encoding:
@@ -185,6 +116,7 @@ def resize_original(image_path):
 def resize_on_save(sender, instance, *args, **kwargs):
     """ Resizes an image when a model field is saved according to user-defined settings.
     """
+    from .finders import find_field_attribute
     default_size = Settings().default
 
     sizes = Settings().get_sizes()
@@ -206,6 +138,35 @@ def resize_on_save(sender, instance, *args, **kwargs):
 
         resize_original(image_path)
 
+def resize_all(media_root, width):
+    """ Resizes all images in upload directories for a new screen width
+
+    :param root MEDIA_ROOT
+    :param width: a string representation of an integer
+    """
+
+    new_size = Settings().generate_scaling_factors([width,]) 
+    upload_dirs = find_field_attribute("upload_to", *find_models_with_field(models.ImageField))
+    
+    # This block iterates through upload_to directories, each sub directory,
+    # and finally resizes each file.
+    for upload_dir in upload_dirs:
+        # Source dir from which images will be resized
+        source_dir = os.path.join(media_root, upload_dir)
+        
+        if os.path.isdir(source_dir):
+            # The directory for the newly scaled images
+            resize_dir = os.path.join(media_root, width, upload_dir)
+            create_directories(media_root, upload_dir)
+            
+            for subdir, dirs, files in os.walk(source_dir):
+                for file in files:
+                    new_file = os.path.join(resize_dir, upload_dir, file)
+                    
+                    if not os.path.isfile(new_file):
+                        image_path = os.path.join(subdir, file)
+                        
+                        resize(media_root, new_size.keys()[0], new_size.values()[0], image_path)
 
     
 def delete_resized_images(sender, instance, *args, **kwargs):

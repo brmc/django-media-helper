@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings as dj_settings
 
 from .settings import Settings
-from .tools.resizers import resize, construct_paths, check_encoding # resize_all, 
+from .tools.resizers import resize # resize_all, 
 from .tools.helpers import construct_paths, check_encoding
 
 
