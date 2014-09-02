@@ -1,5 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 '''
 This is legacy code from the original django-cleanup.  I haven't modified it yet
+Find the original code here:
+https://github.com/un1t/django-cleanup
 '''
 import os
 import logging

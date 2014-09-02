@@ -1,10 +1,10 @@
-from django.shortcuts import get_object_or_404, get_list_or_404, render
-#from django.template.defaultfilters import slugify
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings as dj_settings
-from media_helper.settings import Settings
-from .resizer import resize_all, resize, construct_paths, check_encoding
+
+from .settings import Settings
+from .tools.resizers import resize, construct_paths, check_encoding # resize_all, 
+from .tools.helpers import construct_paths, check_encoding
+
 
 def get_resized_images(images):
     ''' Constructs a new image path for the appropriately sized image
@@ -19,7 +19,7 @@ def get_resized_images(images):
         previous form:
         MEDIA_URL/<upload_to>/<size>/filename.ext
 
-        Now it:
+    Now it:
         prepends MEDIA_URL
         prepends 'media_helper/'
         appends 'filename.ext/' as directory
@@ -59,7 +59,8 @@ def get_resized_images(images):
         if os.path.isfile(new_image_path):
             new_images[old_request_path] = new_request_path
         else:
-            if resize(image[0], image[1]) == True:
+
+            if not image[0].startswith(dj_settings.STATIC_URL) and resize(image[0], image[1]) == True:
                 new_images[old_request_path] = new_request_path
             else:
                 # Fallback
@@ -69,26 +70,29 @@ def get_resized_images(images):
 
 def resolution(request):
     ''' Finds or resizes images and returns them via ajax '''
-    
+    import warnings
     warnings.warn(
         "The name of this view/URL pair will be changed in future versions. Its name no longer"\
         "reflects its function.  Please take note.",
         DeprecationWarning
         )
-
-    if request.is_ajax():
+    print dj_settings.STATIC_URL
+    if request.is_ajax() and not request.path.startswith(dj_settings.STATIC_URL):
         import os
         from ast import literal_eval
         from json import dumps
 
         json = {}
 
-        images = literal_eval(request.POST.get('images']))
+        # creates a list of tuples of (image, size)
+        print "klyhkljhkljh", request.POST.get('images')
+        images = literal_eval(request.POST.get('images'))
         if images is not None:
             new_images = get_resized_images(images )
             json['images'] = new_images
 
-        backgrounds = literal_eval(request.POST.get('backgrounds']))
+        # same as above
+        backgrounds = literal_eval(request.POST.get('backgrounds'))
         if backgrounds is not None:
             new_backgrounds = get_resized_images(backgrounds)
             json['backgrounds'] = new_backgrounds

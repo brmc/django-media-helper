@@ -1,4 +1,5 @@
-# coding: utf-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os
 import warnings
 from PIL import Image
@@ -7,67 +8,7 @@ import django
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save, pre_delete
-from .settings import Settings
-
-def find_models_with_field(field_type): 
-    """Returns a list of models that have the specified field type.
-
-    Arguments:
-    :param field_type: the type of field to search for
-    :type field_type: a field from django.db.models
-
-    :returns: list of models from installed apps
-    """
-    result = []
-    for model in models.get_models():
-        for field in model._meta.fields:
-            if isinstance(field, field_type):
-                result.append(model)
-                break
-    return result
-
-def find_upload_dirs(*model_list):
-    """Finds all upload_to directories for ImageFields
-
-    Arguments:
-    :param model_list: a list of models from installed apps
-    :type model_list: a list of models
-    :returns: list of upload paths 
-    """
-    warnings.warn(
-        "This isn't necessary anymore with the new folder structure, but"\
-        "it will be left in in case the directory structure turns out to"
-        "be a bad idea.  ",
-        DeprecationWarning
-    )
-
-    dirs = []
-    for model in model_list:
-        for field in model._meta.fields:
-            if isinstance(field, models.ImageField) and field.upload_to is not '.':
-                dirs.append(field.upload_to)
-
-    return dirs
-
-def find_field_attribute(attribute, *model_list):
-    """ Returns ImageField attributes for a list of models
-
-    So far this is just used to return the upload paths or field names.
-
-    :param attribute: name of the attribute to search for
-    :type attribute: str
-    :param model_list: a list...of models, imagine that
-    :type model_list: see above
-    :returns: list
-    """
-
-    attributes = []
-    for model in model_list:
-        for field in model._meta.fields:
-            if isinstance(field, models.ImageField) and field.upload_to is not '.':
-                attributes.append(getattr(field, attribute))
-
-    return attributes
+from media_helper.settings import Settings
 
 def check_encoding(image_name):
     ''' Checks for valid image encodings
@@ -149,6 +90,8 @@ def resize(image_path, new_width):
     except KeyError:
         print "Unknown encoding or bad file name"
         return False
+    except IOError:
+        return False
 
 
 def construct_paths(image_name):
@@ -187,7 +130,11 @@ def move_original(image_path):
     import shutil
     
     paths = construct_paths(image_path)
-    image = Image.open(image_path)
+    
+    try:
+        image = Image.open(image_path)
+    except IOError:
+        return False
     encoding = check_encoding(paths['image_name'])
 
     if not encoding:
@@ -213,7 +160,10 @@ def resize_original(image_path):
     '''
     default_size = Settings().default
 
-    image = Image.open(image_path)
+    try:
+        image = Image.open(image_path)
+    except IOError:
+        return False
 
     width, height = image.size
     encoding = check_encoding(image_path)
@@ -260,6 +210,7 @@ def resize_on_save(sender, instance, *args, **kwargs):
     
 def delete_resized_images(sender, instance, *args, **kwargs):
     """ Deletes all scaled images folder when image is deleted """
+    from .finders import find_field_attribute
     import shutil
     
     for name in find_field_attribute("name", instance):
@@ -270,7 +221,7 @@ def delete_resized_images(sender, instance, *args, **kwargs):
 
 def resize_signals():
     """Connects signals for resizing and deletion"""
-
+    from .finders import find_models_with_field
     for model in find_models_with_field(models.ImageField):
         post_save.connect(resize_on_save, sender = model)
         pre_delete.connect(delete_resized_images, sender = model)

@@ -162,8 +162,6 @@ so include the following template somewhere *after* jquery, like so:
     ...
     {% include 'media-helper/ajax.html' %}  
 
-(This is safe to use inside django-compressor `compress` tags)
-
 And I write JS like a neanderthal, so feel free to write your own AJAX. I don't  
 know if I'll get into the specifics in this version, but what I'm doing is   
 pretty straight-forward and basic.
@@ -171,8 +169,7 @@ pretty straight-forward and basic.
 
 ## Usage ##
 
-The rest is handled automatically.  Unless you want to configure things which
-just happens to be the next section.  Life is weird.  
+The rest is handled automatically.  Unless you want to configure things  
 
 ## Configuration ##
 

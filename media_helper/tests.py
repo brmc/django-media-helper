@@ -3,6 +3,8 @@
 from django.test import TestCase
 from django.conf import settings
 from django.db import models
+from media_helper.models import TestModel
+from .settings import Settings
 #from football.models import Test
 
 class ResizerTest(TestCase):
@@ -14,8 +16,6 @@ class ResizerTest(TestCase):
     sizes = [2, 10, 20]
 
     def test_get_sizes(self):
-        from media_helper.settings import Settings
-        
         settings.MEDIA_HELPER_SIZES =[2, 10, 20]
         
         sizes = Settings().get_sizes()
@@ -23,24 +23,20 @@ class ResizerTest(TestCase):
         self.assertEqual(sizes, self.sizes)
 
     def test_get_scaling_factors(self):
-        from media_helper.settings import Settings
-        
         scaling_factors = Settings(maximum = 20, minimum = 1, sizes = self.sizes).generate_scaling_factors(widths = self.sizes)
         scaling_factors
         self.assertEqual(scaling_factors, self.scaling_factors)
 
     def test_find_models_with_field(self):
-        from media_helper.resizer import find_models_with_field
-        from media_helper.models import TestModel
-        
+        from media_helper.tools.finders import find_models_with_field
+    
         m = TestModel
         n = find_models_with_field(models.ImageField)
 
         self.assertTrue(n.count(m) == 1)
 
     def test_find_field_attribute(self):
-        from media_helper.models import TestModel
-        from media_helper.resizer import find_field_attribute
+        from media_helper.tools.resizers import find_field_attribute
         
         self.assertTrue(["image"], find_field_attribute("name", TestModel))
 
@@ -70,7 +66,6 @@ class ResizerTest(TestCase):
         from django.db.models.signals import post_save
         
         import media_helper 
-        from .settings import Settings
         from media_helper.resizer import resize_on_save
         from media_helper.models import TestModel
         
@@ -100,8 +95,8 @@ class ResizerTest(TestCase):
         import os
         import shutil
         from django.conf import settings
-        from .resizer import create_directories
-        create_directories(settings.MEDIA_ROOT, "pathname", "upload")
+        from media_helper.tools.helpers import create_directories
+        create_directories(settings.MEDIA_ROOT, "pathname")
 
         for size in self.scaling_factors.iterkeys():
             path = os.path.join(settings.MEDIA_ROOT, 'media-helper', "pathname")
@@ -110,7 +105,6 @@ class ResizerTest(TestCase):
 
     def test_default_settings(self):
         from settings import Settings
-        
         
         settings = Settings()
         self.assertFalse(settings.auto)

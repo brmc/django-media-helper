@@ -51,14 +51,7 @@ $(document).ready(function(){
 
 
     function strip_path(path, position){
-        // If position is not defined, set it to 4
-        
-        /*media_url = {{ MEDIA_URL }};
-        host = window.location.origin;
-        path.replace(media_url, )
-*/
-        strip = [
-            
+        strip = [      
             'url(',
             window.location.origin,
             ')',
@@ -90,7 +83,9 @@ $(document).ready(function(){
     $('img').each(function(){
 
         image = strip_path($(this)[0].src);
-        images += "('" + image + "'," + new_width($(this)) + "), ";
+        if !(image.match("^/static")){
+           images += "('" + image + "'," + new_width($(this)) + "), ";
+
     });
 
     images += "]";
@@ -156,4 +151,21 @@ $(document).ready(function(){
         
     });
 });
+$(document).ready(function(){
+    container_height();
+    content_height();
+    scrollbar();
+    //menu_layout();
+    setTimeout(scrollbar, 3000);
+    
+    $(window).resize(function() {
+        container_height();
+        content_height();
+        scrollbar();
+        //menu_layout();
+    });
+    
+
+});
 </script>
+
