@@ -50,18 +50,32 @@ def get_resized_images(images):
         if not encoding:
             continue
 
+
+        size = image[1]
+        round_to = Settings().round_to
+
+        if size % round_to != 0:
+            size += round_to - size % round_to
+
         # New images will be named according to their size
         # image[1] is an integer
-        tail = "%d.%s" % (image[1], encoding)            
+        tail = "%d.%s" % (size, encoding)            
         new_request_path = os.path.join(paths['response_path'], tail)
         new_image_path = os.path.join(paths['response_system_path'], tail)
 
         if os.path.isfile(new_image_path):
             new_images[old_request_path] = new_request_path
         else:
-
-            if not image[0].startswith(dj_settings.STATIC_URL) and resize(image[0], image[1]) == True:
-                new_images[old_request_path] = new_request_path
+            
+            if not image[0].startswith(dj_settings.STATIC_URL):
+                result = resize(image[0], image[1]) 
+                if result == True:
+                    new_images[old_request_path] = new_request_path
+                elif result == False:
+                    new_images[old_request_path] = old_request_path
+                else:
+                    new_images[old_request_path] = result
+            
             else:
                 # Fallback
                 new_images[old_request_path] = old_request_path           
@@ -76,7 +90,7 @@ def resolution(request):
         "reflects its function.  Please take note.",
         DeprecationWarning
         )
-    print dj_settings.STATIC_URL
+    
     if request.is_ajax():
         import os
         from ast import literal_eval
@@ -85,7 +99,6 @@ def resolution(request):
         json = {}
 
         # creates a list of tuples of (image, size)
-        print "klyhkljhkljh", request.POST.get('images')
         images = literal_eval(request.POST.get('images'))
         if images is not None:
             new_images = get_resized_images(images )

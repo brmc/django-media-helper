@@ -1,4 +1,4 @@
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import NoArgsCommand, CommandError
 from media_helper.tools.resizers import resize_all
 from django.conf import settings
 

@@ -10,9 +10,11 @@ class Settings(object):
             maximum = 2560, 
             minimum = 800, 
             step_size = 220,
-            default = .4,
+            default = .5,
+            quality = 50,
             default_folder = 'media-helper-default',
             allowed_encodings = ['jpg', 'jpeg', 'png'],
+            round_to = 10,
             *args, 
             **kwargs
         ):
@@ -20,9 +22,11 @@ class Settings(object):
         try:
             self.default = settings.MEDIA_HELPER_DEFAULT
             self.default_folder = settings.MEDIA_HELPER_DEFAULT_FOLDER
+            self.quality = settings.MEDIA_HELPER_QUALITY
         except:
             self.default = default
             self.default_folder = default_folder
+            self.quality = quality
         try:
             self.auto = settings.MEDIA_HELPER_AUTO_SIZES
         except AttributeError:
@@ -47,6 +51,11 @@ class Settings(object):
             self.allowed_encodings = settings.MEDIA_HELPER_ALLOWED_ENCODINGS
         except AttributeError:
             self.allowed_encodings = allowed_encodings
+
+        try:
+            self.round_to = settings.MEDIA_HELPER_ROUND_TO
+        except AttributeError:
+            self.round_to = round_to
 
         if self.maximum < self.minimum:
              self.maximum, self.minimum = minimum, maximum

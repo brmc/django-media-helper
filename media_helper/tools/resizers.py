@@ -37,10 +37,22 @@ def resize(image_path, new_width):
     image = Image.open(paths['backup_path'])
     
     width, height = image.size
+    round_to = Settings().round_to
+
+    # Round up
+    if new_width % round_to != 0:
+        new_width += round_to - new_width % round_to
+    
+    # Don't scale image up
+    if new_width > width:
+        return paths['backup_response_path']
+
     scaling_factor = float(new_width) / float(width)
 
     new_image = image.resize((new_width, int(height * scaling_factor)), Image.ANTIALIAS)
     create_directories(paths['media_helper_root'], image_name)
+
+
 
     try:
         new_image.save(os.path.join(paths['response_system_path'], str(new_width) + "." + encoding,), encoding,  quality=85, optimize = True)
@@ -48,7 +60,8 @@ def resize(image_path, new_width):
     except KeyError:
         print "Unknown encoding or bad file name"
         return False
-    except IOError:
+    except (IOError, SystemError):
+        print "Corrupt data.  Check yo nuts: %s " % paths['backup_path']
         return False
 
 def move_original(image_path):
@@ -58,15 +71,17 @@ def move_original(image_path):
 
     :param image_path: absolute or relative path of image
     :type image_path: str
-    :returns: True or False depending on success.
+    :returns: path of backup image.
     '''
 
     import shutil
 
-    
-    paths = construct_paths(image_path)
-    image = Image.open(image_path)
-    encoding = check_encoding(paths['image_name'])
+    try:
+        paths = construct_paths(image_path)
+        image = Image.open(image_path)
+        encoding = check_encoding(paths['image_name'])
+    except IOError:
+        return False
 
     if not encoding:
         return False
@@ -78,9 +93,9 @@ def move_original(image_path):
     except:
         return True
 
-    return True
+    return paths['backup_path']
 
-def resize_original(image_path):
+def resize_original(image_path, backup_path):
     ''' Creates a low-quality version of the original image
 
     This will be delivered by the initial request and will be replaced via ajax
@@ -90,10 +105,14 @@ def resize_original(image_path):
     :type image_path: str
     '''
     default_size = Settings().default
-
+    default_quality = Settings().quality
     try:
-        image = Image.open(image_path)
+        image = Image.open(backup_path)
     except IOError:
+        warnings.warn(
+            "The image couldn't be resized.  The original is being used",
+            Warning
+        )
         return False
 
     width, height = image.size
@@ -106,11 +125,11 @@ def resize_original(image_path):
             (int(width * default_size), int(height * default_size)), 
             Image.ANTIALIAS
         )
-        image.save(image_path, encoding,  quality=85, optimize = True)
+        image.save(image_path, encoding,  quality=default_quality, optimize = True)
     except:
         warnings.warn(
         "The image couldn't be resized.  The original is being used",
-        DeprecationWarning
+        Warning
     )
 
 def resize_on_save(sender, instance, *args, **kwargs):
@@ -125,7 +144,7 @@ def resize_on_save(sender, instance, *args, **kwargs):
     # sets full path of image to be opened
     for name in find_field_attribute("name", instance):
         image_instance = getattr(instance, name)
-        move_original(image_instance.file.name)
+        backup_path = move_original(image_instance.file.name)
 
         image_path = image_instance.file.name
 
@@ -134,9 +153,9 @@ def resize_on_save(sender, instance, *args, **kwargs):
         width, height = image.size
         # iterates over sizes, scales, and saves accordingly.
         for size in sizes:
-            resize(image_path, int(size * maximum))
+            resize(image_path, int(size * width))
 
-        resize_original(image_path)
+        resize_original(image_path, backup_path)
 
 def resize_all(media_root, width):
     """ Resizes all images in upload directories for a new screen width

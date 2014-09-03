@@ -44,6 +44,7 @@ def construct_paths(image_name):
         'response_path': os.path.join(settings.MEDIA_URL, 'media-helper', image_name),
         'media_helper_root': os.path.join(settings.MEDIA_ROOT, 'media-helper'),
         'backup_path': os.path.join(settings.MEDIA_ROOT, 'media-helper', image_name, "original.%s" % encoding),
+        'backup_response_path': os.path.join(settings.MEDIA_URL, 'media-helper', image_name, 'original.%s' % encoding),
         'response_system_path': os.path.join(settings.MEDIA_ROOT, 'media-helper', image_name)
 
     }
