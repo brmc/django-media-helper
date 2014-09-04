@@ -246,7 +246,7 @@ Restores the original images and deletes the media-helper directory tree.
 
 Settings should be set in your `settings.py`
 
-`MEDIA_HELPER_AUTO`
+### `MEDIA_HELPER_AUTO`
 
 A boolean that determines whether a series of images will be generated when a  
 model is saved.  The auto-sizing feature expects your images to be consistently  
@@ -256,7 +256,7 @@ section.
 
 **default value:**  `True`
 
-`MEDIA_HELPER_SIZES`
+### `MEDIA_HELPER_SIZES`
 
 A list of scaling factors to be used to automatically scale images when they are   
 saved.
@@ -306,7 +306,7 @@ Two things to point out,
 a good time to go into that.
 
 
-`MEDIA_HELPER_ROUND_TO`
+### `MEDIA_HELPER_ROUND_TO`
 
 This is probably one of the most important features because it is intended to 
 prevent a deluge of images being created, it is especially helpful for sites
@@ -320,14 +320,14 @@ This value was chosen rather arbitrarily, but I figure it's large enough to
 account for slight variations in browsers.
 
 
-`MEDIA_HELPER_DEFAULT`
+### `MEDIA_HELPER_DEFAULT`
 
 This is the scaling factor for the low-res default/placeholder.
 
 **default value:** `.5`
 
 
-`MEDIA_HELPER_QUALITY`
+### `MEDIA_HELPER_QUALITY`
 
 The quality of the low-res image.
 
@@ -338,7 +338,7 @@ chosen without any particular reasoning other than "make smaller." No science
 included.
 
 
-`MEDIA_HELPER_ALLOWED_ENCODINGS`
+### `MEDIA_HELPER_ALLOWED_ENCODINGS`
 
 This tells media_helper which file extensions to recognize, but isn't checked 
 intelligently.  It's simply a string comparison, but in case of errors, it 
