@@ -10,19 +10,23 @@ from media_helper.settings import Settings
 
 
 class Command(NoArgsCommand):
-    help = 'This command restores the original images found in the media-helper' \
-        'sub directory to their native path and then deletes the backup.  All '\
-        'other images remain intact.  This means that the full-sized image will'\
-        'be delivered when the page is loaded.'
+    help = 'This command is used to retrofit the media_helper app into a project' \
+        'that already exists. With it you can resize all images found in the '\
+        'MEDIA_ROOT directory, resize/adjust the quality of the placeholder image, '\
+        'delete all resized images, and/or restore images to their original size, '\
+        'quality and location.  If all command options are used simultaneously, '\
+        'they will be processed in the following order:\n   --restore\n   --delete\n   '\
+        '--resize-originals\n   --resize-all\n\nAnd note that whenever --delete is pass, '\
+        "--restore will be forced so you don't risk losing your original images."
 
     option_list = NoArgsCommand.option_list + (
         make_option('--restore',
             action='store_true',
             dest='restore',
             default=False,
-            help='This command restores the original images found in the media-helper' \
+            help='Restores the original images found in the media-helper ' \
                 'sub directory to their native path and then deletes the backup.  All '\
-                'other images remain intact.  This means that the full-sized image will'\
+                'other images remain intact.  This means that the full-sized image will '\
                 'be delivered when the page is loaded.'),
         ) + (
         make_option('--resize-all',
@@ -34,7 +38,7 @@ class Command(NoArgsCommand):
             action='store_true',
             dest='delete',
             default=False,
-            help='Restores the original images then deletes the media-helper dir.'),
+            help='Restores the original images and deletes the media-helper directory tree.'),
         ) + (make_option('--resize-originals',
             action='store_true',
             dest='resize-originals',
@@ -55,7 +59,7 @@ class Command(NoArgsCommand):
             options['restore'] = True
             self.traverse_media_root(**options)
            
-            # Returning original state
+            # Returning original state...
             options['resize-all'] = resize_all
             options['resize-originals'] = resize_originals
             # except for restore which doesn't need to be called again
@@ -67,30 +71,14 @@ class Command(NoArgsCommand):
             except OSError:
                 self.stdout.write("Media-helper directory doesn't exist.")
             
-
         if options['restore'] or options['resize-originals'] or options['resize-all']:
             self.traverse_media_root(**options)
             
-        '''
-        if options['delete']:
-            resize = options['resize-all']
-            # Force restoring backups while temporarily disabling resizing
-            options['resize-all'], options['restore'] = False, True
-            self.traverse_media_root(**options)
-            # Returning 
-            options['resize-all'] = resize
-
-            shutil.rmtree(os.path.join(django_settings.MEDIA_ROOT, 'media-helper'))
-
-        if options['resize-all']:    
-            self.traverse_media_root(**options)
-        '''
-        
 
     def restore(self, original_path, backup_path, **options):
+        ''' Copies original.jpg from media-helper to its original location '''
         if os.path.isfile(backup_path):
             shutil.copy(backup_path, original_path)
-            # os.remove(backup_path)
             # paths['image_name'] is used instead of `file` because it includes
             # the upload_to directory
             if options['verbosity'] > '1':
@@ -102,17 +90,17 @@ class Command(NoArgsCommand):
             return False
 
     def traverse_media_root(self, **options):
-        # counters
+        # counters for stats
         skipped = restored = resized = 0
         media_root = django_settings.MEDIA_ROOT
         media_helper_root = construct_paths("")['media_helper_root']
 
         if os.path.isdir(media_root):
             for path, dirs, files in os.walk(media_root, topdown = True):
+                # Exclude media-helper directory
                 if 'media-helper' in dirs:
                     dirs.remove('media-helper')
-                dirs[:] = [d for d in dirs if d is not 'media-helper']
-                
+                dirs[:] = [d for d in dirs if d is not 'media-helper'] 
                 for file in files:
                     image_path = os.path.join(path, file)
                     paths = construct_paths(image_path)
@@ -137,38 +125,40 @@ class Command(NoArgsCommand):
                   "doesn't exist: %s" % settings.MEDIA_ROOT)
 
         if options['verbosity'] > '0':
-                if options['restore']:
-                    self.stdout.write("%d file(s) restored.\n%d file(s) resized.\n%d file(s) skipped" % (restored, resized, skipped))
+            self.stdout.write("%d file(s) restored.\n%d file(s) resized.\n%d file(s) skipped" % (restored, resized, skipped))
         
     def resize_all(self, image_path, **options): 
+        ''' Resizes all images found in the media directory '''
         from PIL import Image
         
-        if os.path.isfile(image_path):
-            try:
-                image = Image.open(image_path)
-                width, height = image.size
-                del image
-            except IOError:
-                return False
+        paths = construct_paths(image_path)
+        
+        # Check for backup before resizing 
+        if os.path.isfile(paths['backup_path']):
+            open_path = paths['backup_path']
+        elif os.path.isfile(image_path):
+            open_path = image_path
         else:
             return False
-
+        
         try:
-            if options['verbosity'] > '0':
+            image = Image.open(open_path)
+            width, height = image.size
+            del image
+        except IOError:
+            return False
+        
+        try:
+            if options['verbosity'] > '1':
                 self.stdout.write("Backing up and creating placeholder for %s " % image_path)
-            
-            backup_path = move_original(image_path)
 
             for size in Settings().sizes:
                 # scale width
                 new_size = int(size * width)
                 
-                if options['verbosity'] > '1':
+                if options['verbosity'] > '2':
                     self.stdout.write("Resizing %s to %dpx wide" % (image_path, new_size))
                 resize(image_path, new_size)
-
-            if backup_path:
-                resize_original(image_path, backup_path)
        
         except:
             raise

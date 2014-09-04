@@ -1,6 +1,7 @@
 <script>
-// this was taken directly from https://docs.djangoproject.com/en/1.6/ref/contrib/csrf/
+{% comment %} this was taken directly from https://docs.djangoproject.com/en/1.6/ref/contrib/csrf/
 // except for the last couple lines.  You should edit the ajax request to fit your needs
+{% endcomment %}
 
 $(document).ready(function(){
     function getCookie(name) {
@@ -48,9 +49,8 @@ $(document).ready(function(){
         }
     }); 
 
-
-
     function strip_path(path, position){
+        {# this makes certain assumptions about the URI structure #}
         strip = [      
             'url(',
             window.location.origin,
@@ -61,12 +61,13 @@ $(document).ready(function(){
         $.each(strip, function(){
             path = path.replace(this, "");
         })
-       
         return path
         
     }
     function new_width(element){
+        {{MEDIA_HELPER_AUTO}}
         return parseInt(element.width() * window.screen.width/$(window).width());
+        }
     }
 
     {% comment %}
@@ -81,15 +82,12 @@ $(document).ready(function(){
     var images = "[";
     var image = ""
     $('img').each(function(){
-
         image = strip_path($(this)[0].src);
-        
            images += "('" + image + "'," + new_width($(this)) + "), ";
 
     });
 
     images += "]";
-alert(images);
     {% comment %}
         A similar method as above, but because browsers return the background-image path differently, a few modifications 
         must be made.
@@ -110,10 +108,6 @@ alert(images);
     });
 
     backgrounds += "]"
-
-    function update_images(data){
-        alert(data.length)    
-    }
 
     $.ajax({
         type: "POST",

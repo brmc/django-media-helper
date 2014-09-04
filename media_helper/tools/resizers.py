@@ -14,8 +14,11 @@ from .helpers import construct_paths, check_encoding, create_directories
 def resize(image_path, new_width):
     """ A single image is resized and saved to a new directory.
 
+    It will be rounded up according to the settings.
+
     Arguments:
-    :param image_path: the upload_to directory and the file name 
+    :param image_path: the upload_to directory and the file name. extra path
+                       info is ok too.  absolute paths will be stripped. 
     :type image_path: string
     :param new_width: new width in px
     :type new_width: int
@@ -32,7 +35,7 @@ def resize(image_path, new_width):
 
     if not os.path.isfile(paths['backup_path']):
         move_original(paths['request_system_path'])
-        resize_original(paths['request_system_path'])
+        resize_original(paths['request_system_path'], paths['backup_path'])
 
     image = Image.open(paths['backup_path'])
     
@@ -126,21 +129,26 @@ def resize_original(image_path, backup_path):
             Image.ANTIALIAS
         )
         image.save(image_path, encoding,  quality=default_quality, optimize = True)
+        return True
     except:
         warnings.warn(
-        "The image couldn't be resized.  The original is being used",
-        Warning
-    )
+            "The image couldn't be resized.  The original is being used",
+            Warning
+        )
+        return False
 
 def resize_on_save(sender, instance, *args, **kwargs):
     """ Resizes an image when a model field is saved according to user-defined settings.
     """
     from .finders import find_field_attribute
+    
+    if not Settings().auto:
+        return
+        
     default_size = Settings().default
 
-    sizes = Settings().get_sizes()
-    maximum = Settings().maximum
-   
+    sizes = Settings().sizes
+    
     # sets full path of image to be opened
     for name in find_field_attribute("name", instance):
         image_instance = getattr(instance, name)

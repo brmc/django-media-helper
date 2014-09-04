@@ -4,15 +4,13 @@ from django.conf import settings
             
 class Settings(object):
     def __init__(
-            self, 
-            auto = False, 
+            self,
+            auto = True, 
             sizes = [0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875, 0.5625, 0.6, 0.625, 0.65625, 0.75, 0.8, 1.0],
-            maximum = 2560, 
-            minimum = 800, 
-            step_size = 220,
             default = .5,
             quality = 50,
-            default_folder = 'media-helper-default',
+            minimum = 800, 
+            default_folder = 'media-helper',
             allowed_encodings = ['jpg', 'jpeg', 'png'],
             round_to = 10,
             *args, 
@@ -28,7 +26,7 @@ class Settings(object):
             self.default_folder = default_folder
             self.quality = quality
         try:
-            self.auto = settings.MEDIA_HELPER_AUTO_SIZES
+            self.auto = settings.MEDIA_HELPER_AUTO
         except AttributeError:
             self.auto = auto
 
@@ -38,15 +36,11 @@ class Settings(object):
             self.sizes = sizes
 
         try:
-            self.maximum = settings.MEDIA_HELPER_MAX
             self.minimum = settings.MEDIA_HELPER_MIN
-            self.step_size = settings.MEDIA_HELPER_STEP_SIZE
-
+            
         except AttributeError:
-            self.maximum = maximum
             self.minimum = minimum
-            self.step_size = step_size
-
+            
         try:
             self.allowed_encodings = settings.MEDIA_HELPER_ALLOWED_ENCODINGS
         except AttributeError:
@@ -57,12 +51,8 @@ class Settings(object):
         except AttributeError:
             self.round_to = round_to
 
-        if self.maximum < self.minimum:
-             self.maximum, self.minimum = minimum, maximum
         
-        if self.step_size > self.maximum - self.minimum:
-                print 'yo step size b 2 big. lol. y u so dum?!?'
-
+'''
     def get_sizes(self, *args, **kwargs):
         """ Returns user defined sizes or an automatically generated list
 
@@ -88,7 +78,11 @@ class Settings(object):
         :type widths: list of ints or strings
         :returns: dict
         """
+        import warnings
 
+        warnings.warn("This is deprecated.  
+
+            ")
         if widths == None:
             widths = self.get_sizes()
         try:
@@ -99,3 +93,4 @@ class Settings(object):
 
         
         return {str(int(round(i, 0))): i / self.maximum for i in widths}
+'''

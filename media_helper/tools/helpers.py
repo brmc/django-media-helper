@@ -61,9 +61,6 @@ def create_directories(directory, image_name):
     :param image_name: the name of the image including the upload_to dir
     type image_name: str
     """
-
-    # This needs to be optimized after the path schema changed.  It works, but
-    # is wasteful
     
     new_dir = os.path.join(directory, image_name)
     if not os.path.exists(new_dir):
