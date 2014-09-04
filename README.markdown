@@ -9,10 +9,16 @@
 
 1. **settings.py:**  
 
-     `INSTALLED_APPS = (  
+     
+```
+#!python
+
+INSTALLED_APPS = (  
             ...  
             'media_helper', # should go after all your apps    
-        )  `
+        )  
+
+```
 
 2. **urls.py:**
 
@@ -26,7 +32,6 @@ urlpatterns = patterns('',
         ...
     )
 ```
-
 
 3. **Templates:**
 
