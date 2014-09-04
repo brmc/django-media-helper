@@ -7,7 +7,7 @@
 
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
 
-1. **settings.py:**  
+2\.**settings.py:**  
      
 ```
 #!python
@@ -18,7 +18,8 @@ INSTALLED_APPS = (
         )  
 
 ```
-2. **urls.py:**
+
+2\. **urls.py:**
 
 ```
 #!python
@@ -29,10 +30,10 @@ urlpatterns = patterns('',
         ...
     )
 ```
-3. **Templates:**
+3\. **Templates:**
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>  
-    {% include 'media-helper/ajax.html' %}  
+    {% include 'media-helper/ajax.html' %}
 
 That should be it for default functionality  
 
@@ -152,11 +153,14 @@ should be fine.
 
 
 ## Installation ##
+
+**1\.** Install the app:  
     
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git  
 
 
-Add `media_helper` to settings.py
+
+**2\.** Add `media_helper` to settings.py
 
     INSTALLED_APPS = (
         ...
@@ -166,7 +170,9 @@ Add `media_helper` to settings.py
 `media_helper` should be placed after all your apps. (At least after those apps   
 which need to remove files.)
 
-In order to handle the ajax requests, add the following to your root `urls.py`  
+
+
+**3\.** In order to handle the ajax requests, add the following to your root `urls.py`  
 
     urlpatterns = patterns('',
         ...
@@ -174,7 +180,9 @@ In order to handle the ajax requests, add the following to your root `urls.py`
         ...
     )
 
-Now we also need some javascript, but the JS depends on some context variables,  
+  
+  
+**4\.** Now we also need some javascript, but the JS depends on some context variables,  
 so include the following template somewhere *after* jquery, like so:  
 
 
@@ -199,7 +207,7 @@ However if you're adding this app to an existing project, or something seems to
 be broken,  here are some management commands that might be useful.  
 
 
-### Command: `mediahelper` ###
+### Management Command: `mediahelper` ###
 
 This command is used to retrofit the media_helper app into a project that  
 already exists. With it you can resize all images found in the MEDIA_ROOT  
