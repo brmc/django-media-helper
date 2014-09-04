@@ -16,15 +16,17 @@ setup(
     version  = '0.1.1',
     packages = find_packages(),
     include_package_data=True,
-    requires = ['python (>= 2.5)', 'django (>= 1.3)', 'Pillow (>= 2.1.0)'],
-    description  = 'Deletes old files and resizes new ones for different resolutions. A fork of django-cleanup.',
+    requires = ['python (>= 2.5)', 'django (>= 1.6)', 'Pillow (>= 2.1.0)'],
+    description  = 'Deletes old files, resizes images, and uses ajax to deliver '\
+                    'resized images to speed up load times. A fork of '\
+                    'django-cleanup.',
     long_description = open('README.markdown').read(), 
     author       = 'Brian McClure',
     author_email = 'brian.mcclr@gmail.com',
-    url          = 'https://github.com/un1t/django-cleanup',
+    url          = 'https://bitbucket.org/brmcllr/django_media_helper.git',
     download_url = 'https://github.com/un1t/django-cleanup/tarball/master',
     license      = 'MIT License',
-    keywords     = 'django',
+    keywords     = 'django, imaging, ajax',
     classifiers  = [
         'Environment :: Web Environment',
         'Framework :: Django',

@@ -41,46 +41,61 @@ def get_resized_images(images):
     new_images = {}
 
     for image in images:
-        # These are paths that will be used often by this app.
+        # Common paths used often by this app.
         paths = construct_paths(image[0])
         old_request_path = paths['request_path']
         
         # Only certain types of encodings are allowed by the settings
         encoding = check_encoding(image[0])
         if not encoding:
+            new_images[old_request_path] = old_request_path
             continue
 
-
+        # image sizes will be rounded
         size = image[1]
         round_to = Settings().round_to
 
         if size % round_to != 0:
             size += round_to - size % round_to
 
-        # New images will be named according to their size
-        # image[1] is an integer
-        tail = "%d.%s" % (size, encoding)            
-        new_request_path = os.path.join(paths['response_path'], tail)
-        new_image_path = os.path.join(paths['response_system_path'], tail)
-
+        # named according to size
+        resized_image_name = "%d.%s" % (size, encoding)            
+        new_request_path = os.path.join(paths['response_path'], resized_image_name)
+        new_image_path = os.path.join(paths['response_system_path'], resized_image_name)
+        
         if os.path.isfile(new_image_path):
             new_images[old_request_path] = new_request_path
-        else:
-            
-            if not image[0].startswith(dj_settings.STATIC_URL):
-                result = resize(image[0], image[1]) 
-                if result == True:
-                    new_images[old_request_path] = new_request_path
-                elif result == False:
-                    new_images[old_request_path] = old_request_path
-                else:
-                    new_images[old_request_path] = result
-            
+        elif not image[0].startswith(dj_settings.STATIC_URL):
+            result = resize(image[0], image[1]) 
+            if result == True:
+                new_images[old_request_path] = new_request_path
+            elif result == False:
+                new_images[old_request_path] = old_request_path
             else:
-                # Fallback
-                new_images[old_request_path] = old_request_path           
-
+                new_images[old_request_path] = result
+        else:
+            # Use original image
+            new_images[old_request_path] = old_request_path         
     return new_images
+
+def check_images(images):
+    from ast import literal_eval
+    # convert to python object
+    try:
+        images = literal_eval(images)
+    except:
+        return None
+
+    # Check if images is a list of (str, int) tuples
+    if (isinstance(images, list) and 
+            len(images) > 0 and
+            isinstance(images[0], tuple) and
+            len(images[0]) == 2 and
+            isinstance(images[0][0], str) and 
+            isinstance(images[0][1], int)):
+        return images
+    return None
+
 
 def resolution(request):
     ''' Finds or resizes images and returns them via ajax '''
@@ -93,19 +108,17 @@ def resolution(request):
     
     if request.is_ajax():
         import os
-        from ast import literal_eval
         from json import dumps
 
         json = {}
-
-        # creates a list of tuples of (image, size)
-        images = literal_eval(request.POST.get('images'))
+        # Get, convert, and check data from client
+        images = check_images(request.POST.get('images'))
         if images is not None:
             new_images = get_resized_images(images )
             json['images'] = new_images
 
         # same as above
-        backgrounds = literal_eval(request.POST.get('backgrounds'))
+        backgrounds = check_images(request.POST.get('backgrounds'))
         if backgrounds is not None:
             new_backgrounds = get_resized_images(backgrounds)
             json['backgrounds'] = new_backgrounds
