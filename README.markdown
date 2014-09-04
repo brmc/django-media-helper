@@ -7,12 +7,12 @@
 
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
 
-1. **settings.py:**
+1. **settings.py:**  
 
-    INSTALLED_APPS = (
-            ...
-            'media_helper', # should go after all your apps  
-        )
+     INSTALLED_APPS = (  
+            ...  
+            'media_helper', # should go after all your apps    
+        )  
 
 2. **urls.py:**
 
