@@ -1,5 +1,8 @@
 # **django-media-helper** #
 
+[TOC]
+
+
 ## Quick start ##
 
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
@@ -351,4 +354,3 @@ should fail gracefully.
 
 3. It doesn't handle javascript image zooming libraries very well, particularly  
 if they source the same image or the display is set to none
-
