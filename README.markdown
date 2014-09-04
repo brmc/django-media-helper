@@ -8,7 +8,6 @@
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
 
 1. **settings.py:**  
-
      
 ```
 #!python
@@ -19,9 +18,7 @@ INSTALLED_APPS = (
         )  
 
 ```
-
 2. **urls.py:**
-
 
 ```
 #!python
@@ -32,7 +29,6 @@ urlpatterns = patterns('',
         ...
     )
 ```
-
 3. **Templates:**
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>  
