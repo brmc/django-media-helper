@@ -211,7 +211,7 @@ processed in the following order:
 And note that whenever --delete is passed, --restore will be forced so you  
 don't risk losing your original images.  
 
-**usage:** 
+**usage:**   
     python manage.py mediahelper <option>
 
 
@@ -237,9 +237,6 @@ you need to adjust the appropriate settings in your `settings.py`
 ### option: `--delete`
 
 Restores the original images and deletes the media-helper directory tree.  
-
-Unless you want to configure things which  
-just happens to be the next section.  Life is weird.    
 
 
 ## Configuration ##
