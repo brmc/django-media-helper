@@ -5,9 +5,11 @@
 
 ## Quick start ##
 
+1\. **Installation**
+
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
 
-2\.**settings.py:**  
+2\. **settings.py:**  
      
 ```
 #!python
@@ -154,7 +156,7 @@ should be fine.
 
 ## Installation ##
 
-**1\.** Install the media_helper:  
+**1\.** Install media_helper:  
     
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git  
 
