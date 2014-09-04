@@ -89,10 +89,10 @@ image already exists, a new one will be re-sized. (this includes css
 background-images as well but not list-item-images).  If something goes wrong,  
 the low-res image will remain in place.  
 
-The size of the image will be determined by the html element's rendered size, 
-and if the browser window is not maximized, it scales it up so image quality 
-won't be lost in case the user **does** maximize the window. **This assumes 
-you're using a responsive design with images whose sizes are not statically
+The size of the image will be determined by the html element's rendered size,  
+and if the browser window is not maximized, it scales it up so image quality   
+won't be lost in case the user **does** maximize the window. **This assumes  
+you're using a responsive design with images whose sizes are not statically  
 defined.  In the near future I will accomodate for for alternate scenarios**
 
 
@@ -132,7 +132,7 @@ to encode.
 packages, but you won't be able to do much, so you need to install these   
 packages BEFORE you try to install Pillow.**  
 
-Pay particular attention to this part: 
+Pay particular attention to this part:   
 http://pillow.readthedocs.org/en/latest/installation.html#external-libraries  
 
 And don't worry, Pillow pisses everyone off at some point.  
@@ -180,36 +180,36 @@ so include the following template somewhere *after* jquery, like so:
 
 (This is safe to use inside django-compressor `compress` tags)
 
-And I write JS like a neanderthal, so feel free to write your own AJAX. I don't  
-know if I'll get into the specifics in this version, but what I'm doing is   
-pretty straight-forward and basic.
+And I write JS like a neanderthal, so feel free to write your own AJAX. I don't    
+know if I'll get into the specifics in this version, but what I'm doing is     
+pretty straight-forward and basic.  
 
 
 ## Usage ##
 
-If you are content with the default settings(which just happen to be discussed
-next...spooky huh? Life is weird), for a new project, the rest is handled 
-automatically.  You don't need to do anything else.
+If you are content with the default settings(which just happen to be discussed   
+next...spooky huh? Life is weird), for a new project, the rest is handled    
+automatically.  You don't need to do anything else.   
 
-However if you're adding this app to an existing project, or something seems to 
-be broken,  here are some management commands that might be useful.
+However if you're adding this app to an existing project, or something seems to   
+be broken,  here are some management commands that might be useful.  
 
 
-### Command: mediahelper ###
+### Command: `mediahelper` ###
 
-This command is used to retrofit the media_helper app into a project that 
-already exists. With it you can resize all images found in the MEDIA_ROOT 
-directory, resize/adjust the quality of the placeholder image, delete all 
-resized images, and/or restore images to their original size, quality and 
-location.  If all command options are used simultaneously, they will be 
+This command is used to retrofit the media_helper app into a project that  
+already exists. With it you can resize all images found in the MEDIA_ROOT  
+directory, resize/adjust the quality of the placeholder image, delete all  
+resized images, and/or restore images to their original size, quality and  
+location.  If all command options are used simultaneously, they will be  
 processed in the following order:
    --restore   
    --delete
    --resize-originals
    --resize-all
 
-And note that whenever --delete is passed, --restore will be forced so you 
-don't risk losing your original images.
+And note that whenever --delete is passed, --restore will be forced so you  
+don't risk losing your original images.  
 
 **usage:** 
     python manage.py mediahelper <option>
@@ -217,9 +217,9 @@ don't risk losing your original images.
 
 ### option: `--restore` ###
 
-Restores the original images found in the media-helper sub directory to their 
-native path and then deletes the backup.  All other images remain intact.  This 
-means that the full-sized image will be delivered when the page is loaded.
+Restores the original images found in the media-helper sub directory to their  
+native path and then deletes the backup.  All other images remain intact.  This  
+means that the full-sized image will be delivered when the page is loaded.  
 
 
 ### option: `--resize-all`
@@ -229,17 +229,17 @@ Resizes all allowed images in MEDIA_ROOT.
 
 ### option: `--resize-originals`
 
-Use this when you want to change the quality and/or size of the place holder 
-images.  This just reinitializes everything, so for any changes to take affect
-you need to adjust the appropriate settings in your `settings.py`
+Use this when you want to change the quality and/or size of the place holder   
+images.  This just reinitializes everything, so for any changes to take affect  
+you need to adjust the appropriate settings in your `settings.py`  
 
 
 ### option: `--delete`
 
-Restores the original images and deletes the media-helper directory tree.
+Restores the original images and deletes the media-helper directory tree.  
 
-Unless you want to configure things which
-just happens to be the next section.  Life is weird.  
+Unless you want to configure things which  
+just happens to be the next section.  Life is weird.    
 
 
 ## Configuration ##
@@ -248,26 +248,26 @@ Settings should be set in your `settings.py`
 
 `MEDIA_HELPER_AUTO`
 
-A boolean that determines whether a series of images will be generated when a
-model is saved.  The auto-sizing feature expects your images to be consistently
-sized relative to one another and the final layout.  If your images are all 
-willy-nilly, this probably won't do you much good.  More info in the next 
+A boolean that determines whether a series of images will be generated when a  
+model is saved.  The auto-sizing feature expects your images to be consistently  
+sized relative to one another and the final layout.  If your images are all   
+willy-nilly, this probably won't do you much good.  More info in the next   
 section.
 
-**default value:**  True
+**default value:**  `True`
 
 `MEDIA_HELPER_SIZES`
 
-A list of scaling factors to be used to automatically scale images when they are 
+A list of scaling factors to be used to automatically scale images when they are   
 saved.
 
-**default values:**
-`[0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875, 0.5625, 0.6, 
+**default values:**  
+`[0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875, 0.5625, 0.6,  
 0.625, 0.65625, 0.75, 0.8, 1.0]`
 
-These values were chosen with a maximum screen width of 2560px in mind where 
-each scaling factor corresponds to a common width.  For example:
-
+These values were chosen with a maximum screen width of 2560px in mind where    
+each scaling factor corresponds to a common width.  For example:  
+ 
     1.0 ->  2560px
     .8  ->  2048px
     .75 ->  1920px
@@ -275,27 +275,28 @@ each scaling factor corresponds to a common width.  For example:
     .4  ->  1024px
     etc...
 
-The assumption is that if a layout is designed for a 2560px width, each
-image is exactly cropped to fit the expected rendered dimensions of their html
-element with no stuffing or stretching going on. 
+The assumption is that if a layout is designed for a 2560px width, each  
+image is exactly cropped to fit the expected rendered dimensions of their html  
+element with no stuffing or stretching going on.   
 
-For example if you have a background-image, a logo, and a banner on a page where 
-the background-image takes up the entire window, the banner is 80% of the screen 
-width, and the logo is 10%, with the default settings `media-helper` expects you 
-to upload images with the following widths:
+For example if you have a background-image, a logo, and a banner on a page where   
+the background-image takes up the entire window, the banner is 80% of the screen   
+width, and the logo is 10%, with the default settings `media-helper` expects you   
+to upload images with the following widths:  
 
 image          | width
----------------|-------
+--------------:|:------
 background.jpg | 2560px
 banner.jpg     | 2048px
 logo.png       | 256px
 
-So for the logo and background image, the auto-scaling feature would create the 
-following sized images(widths are in px of course):
+So for the logo and background image, the auto-scaling feature would create the  
+following sized images(widths are in px of course):  
     
-scaling factor | 0.3 | 0.3125 | 0.4 | 0.426953125 | [...] | 0.75 | 0.8 | 1.0
-background.jpg | 768 | 800    | 1024| 1093        | [...] | 1920 | 2048| 2560
-logo.png       | 77  | 80     | 103 | 110         | [...] | 193  | 205 | 256
+scaling factor | 0.3 | 0.3125 | 0.4 | 0.426953125 | [...] | 0.75 | 0.8 | 1.0  
+--------------:|-----|--------|-----|-------------|-------|------|-----|-----
+background.jpg | 768 | 800    | 1024| 1093        | [...] | 1920 | 2048| 2560  
+logo.png       | 77  | 80     | 103 | 110         | [...] | 193  | 205 | 256  
 
 Two things to point out,
 
@@ -313,7 +314,7 @@ with many images.
 
 It is simply an integer representing the near # to round to.
 
-**default value:** 10
+**default value:** `10`
 
 This value was chosen rather arbitrarily, but I figure it's large enough to 
 account for slight variations in browsers.
@@ -323,14 +324,14 @@ account for slight variations in browsers.
 
 This is the scaling factor for the low-res default/placeholder.
 
-**default value:** .5
+**default value:** `.5`
 
 
 `MEDIA_HELPER_QUALITY`
 
 The quality of the low-res image.
 
-**default value:** 50
+**default value:** `50`
 
 default values for `MEDIA_HELPER_DEFAULT` and `MEDIA_HELPER_QUALITY` were also 
 chosen without any particular reasoning other than "make smaller." No science
@@ -343,7 +344,7 @@ This tells media_helper which file extensions to recognize, but isn't checked
 intelligently.  It's simply a string comparison, but in case of errors, it 
 should fail gracefully.
 
-**default values:** ['jpg', 'jpeg', 'png']
+**default values:** `['jpg', 'jpeg', 'png']`
 
 ## What it does **not** do (...yet?) ##
 
