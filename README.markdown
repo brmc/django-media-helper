@@ -154,7 +154,7 @@ should be fine.
 
 ## Installation ##
 
-**1\.** Install the app:  
+**1\.** Install the media_helper:  
     
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git  
 
