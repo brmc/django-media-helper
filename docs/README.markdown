@@ -1,18 +1,27 @@
 # **django-media-helper** #
 
+[TOC]
+
+
 ## Quick start ##
+
+1\. **Installation**
 
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
 
-**settings.py:**
+2\. **settings.py:**  
+     
+```
+#!python
 
-    INSTALLED_APPS = (
-            ...
-            'media_helper', # should go after all your apps  
-        )
+INSTALLED_APPS = (  
+            ...  
+            'media_helper', # should go after all your apps    
+        )  
 
-**urls.py:**
+```
 
+2\. **urls.py:**
 
 ```
 #!python
@@ -23,14 +32,13 @@ urlpatterns = patterns('',
         ...
     )
 ```
-
-
-**Templates:**
+3\. **Templates:**
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>  
-    {% include 'media-helper/ajax.html' %}  
+    {% include 'media-helper/ajax.html' %}
 
 That should be it for default functionality  
+
 
 ## General Info ##
 
@@ -40,16 +48,12 @@ times and reducing data transfer.
 
 It's basically broken into two parts.
 
-`media_helper.cleanup:`
+
+### File Cleanup ###
 
 First, this is a straight fork of `django-cleanup`, an app that deletes files   
 from the server when the associated field or model is changed or deleted. It   
 retains its complete functionality with virtually no modifications.  
-
-`media_helper.resizer`
-
-Images are resized images for you and delivered via AJAX while the rest of   
-your page loads.
 
 From the django-cleanup docs:
 
@@ -60,11 +64,19 @@ From the django-cleanup docs:
     Most django projects I've seen don't use transactions and this app is   
     designed for such projects.
 
+Full info here: https://github.com/un1t/django-cleanup
+
+
+### Image resizing ###
+
+Images are resized, stored, and delivered via AJAX while the rest of your page 
+loads.
+
 
 ## How does it work? ##
 
 ### File Cleanup ###
-`media_helper.cleanup` connects pre_save and post_delete signals to special   
+`media_helper.tools.cleanup` connects pre_save and post_delete signals to special   
 functions(these functions delete old files) for each model whose parent app    
 is listed in INSTALLED_APPS above 'media_helper'.  
 
@@ -76,11 +88,20 @@ When you save an image, a couple things happen:
 2. Several resized images will be initially generated (Info below)   
 3. A default, low-res image will be also be created   
 
+Images are also generated on the fly. 
+
 When a user visits your domain, the low-res copy of each image will be used   
-while the correctly sized images are being delivered via AJAX calls.  If no   
+while the correctly sized images are being retrieved via AJAX calls.  If no   
 image already exists, a new one will be re-sized. (this includes css   
 background-images as well but not list-item-images).  If something goes wrong,  
 the low-res image will remain in place.  
+
+The size of the image will be determined by the html element's rendered size,  
+and if the browser window is not maximized, it scales it up so image quality   
+won't be lost in case the user **does** maximize the window. **This assumes  
+you're using a responsive design with images whose sizes are not statically  
+defined.  In the near future I will accomodate for for alternate scenarios**
+
 
 ### Something to consider ###
 
@@ -88,10 +109,10 @@ Resized images other than the default image are named and stored according to
 their size.  For example, if an image `foo.png` was resized to be 300px wide,   
 it would be found under the following request path  
 
-    /<MEDIA_URL/media-helper/<upload_to>/foo.png/300.png  
+    /<MEDIA_URL>/media-helper/<upload_to>/foo.png/300.png  
 
 It is warned that having purely numerical image names can negatively affect   
-search results.  Nevertheless I have chosen to do so because:  
+search results.  Nevertheless I have chosen to do so anyway because:  
 
 1. the default image retains its original name, and from my understanding  
 search engines index pages and images based on the results before the DOM  
@@ -99,7 +120,7 @@ is modified by javascript, so this should not affect indexing.
 
 2. any information found in the image name is retained in the full path.  
 
-If my understanding is mistaken, please let me know so I can rectify this as  
+If I am mistaken, please let me know so I can rectify this as  
 soon as possible.
 
 So if you are uncertain and SEO is of utmost importance to you, you might   
@@ -118,10 +139,11 @@ to encode.
 packages, but you won't be able to do much, so you need to install these   
 packages BEFORE you try to install Pillow.**  
 
-Pay particular attention to this part: 
+Pay particular attention to this part:   
 http://pillow.readthedocs.org/en/latest/installation.html#external-libraries  
 
 And don't worry, Pillow pisses everyone off at some point.  
+
 
 ### Ajax ###
 
@@ -133,10 +155,14 @@ should be fine.
 
 
 ## Installation ##
+
+**1\.** Install media_helper:  
     
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git  
 
-Add `media_helper` to settings.py
+
+
+**2\.** Add `media_helper` to settings.py
 
     INSTALLED_APPS = (
         ...
@@ -146,7 +172,9 @@ Add `media_helper` to settings.py
 `media_helper` should be placed after all your apps. (At least after those apps   
 which need to remove files.)
 
-In order to handle the ajax requests, add the following to your root `urls.py`  
+
+
+**3\.** In order to handle the ajax requests, add the following to your root `urls.py`  
 
     urlpatterns = patterns('',
         ...
@@ -154,7 +182,9 @@ In order to handle the ajax requests, add the following to your root `urls.py`
         ...
     )
 
-Now we also need some javascript, but the JS depends on some context variables,  
+  
+  
+**4\.** Now we also need some javascript, but the JS depends on some context variables,  
 so include the following template somewhere *after* jquery, like so:  
 
 
@@ -162,43 +192,176 @@ so include the following template somewhere *after* jquery, like so:
     ...
     {% include 'media-helper/ajax.html' %}  
 
-And I write JS like a neanderthal, so feel free to write your own AJAX. I don't  
-know if I'll get into the specifics in this version, but what I'm doing is   
-pretty straight-forward and basic.
+(This is safe to use inside django-compressor `compress` tags)
+
+And I write JS like a neanderthal, so feel free to write your own AJAX. I don't    
+know if I'll get into the specifics in this version, but what I'm doing is     
+pretty straight-forward and basic.  
 
 
 ## Usage ##
 
-The rest is handled automatically.  Unless you want to configure things  
+If you are content with the default settings(which just happen to be discussed   
+next...spooky huh? Life is weird), for a new project, the rest is handled    
+automatically.  You don't need to do anything else.   
+
+However if you're adding this app to an existing project, or something seems to   
+be broken,  here are some management commands that might be useful.  
+
+
+### Management Command: `mediahelper` ###
+
+This command is used to retrofit the media_helper app into a project that  
+already exists. With it you can resize all images found in the MEDIA_ROOT  
+directory, resize/adjust the quality of the placeholder image, delete all  
+resized images, and/or restore images to their original size, quality and  
+location.  If all command options are used simultaneously, they will be  
+processed in the following order:
+   --restore   
+   --delete
+   --resize-originals
+   --resize-all
+
+And note that whenever --delete is passed, --restore will be forced so you  
+don't risk losing your original images.  
+
+**usage:**   
+    python manage.py mediahelper <option>
+
+
+### option: `--restore` ###
+
+Restores the original images found in the media-helper sub directory to their  
+native path and then deletes the backup.  All other images remain intact.  This  
+means that the full-sized image will be delivered when the page is loaded.  
+
+
+### option: `--resize-all`
+
+Resizes all allowed images in MEDIA_ROOT.
+
+
+### option: `--resize-originals`
+
+Use this when you want to change the quality and/or size of the place holder   
+images.  This just reinitializes everything, so for any changes to take affect  
+you need to adjust the appropriate settings in your `settings.py`  
+
+
+### option: `--delete`
+
+Restores the original images and deletes the media-helper directory tree.  
+
 
 ## Configuration ##
 
-** There are several deprecated settings below, so be   
+Settings should be set in your `settings.py`
 
-Set `MEDIA_HELPER_AUTO_SIZES` to `False` if you want to explicitly specify   
-which resolutions to resize for. Set it to `True` if you want a series of  
-images to be generated between a certain range at even increments.  
+### `MEDIA_HELPER_AUTO`
 
-Default value: 
-`MEDIA_HELPER_AUTO_SIZES = False`
+A boolean that determines whether a series of images will be generated when a  
+model is saved.  The auto-sizing feature expects your images to be consistently  
+sized relative to one another and the final layout.  If your images are all   
+willy-nilly, this probably won't do you much good.  More info in the next   
+section.
 
-If `MEDIA_HELPER_AUTO_SIZES` is `False`, define your screen widths in 
-`MEDIA_HELPER_SIZES`.  It accepts a list of strings, integers, or floats. I   
-dont believe the order matters...i forgot if I implemented that though. I  
-probably did. just try it!  Be bold! Be swift! And damn the consequences!  
+**default value:**  `True`
 
-Default value: 
-`MEDIA_HELPER_AUTO_SIZES = [2560, 1920, 1600, 1440, 1366, 1280, 1024, 800]`  
+### `MEDIA_HELPER_SIZES`
 
-If `MEDIA_HELPER_AUTO_SIZES` is `True`, You need to set MEDIA_HELPER_MAX,   
-MEDIA_HELPER_MIN, MEDIA_HELPER_STEP_SIZE.  MAX andMAX are both inclusive.    
+A list of scaling factors to be used to automatically scale images when they are   
+saved.
 
-Default values:
-    MEDIA_HELPER_MAX = 2560
-    MEDIA_HELPER_MIN = 800
-    MEDIA_HELPER_STEP_SIZE = 320
+**default values:**  
+`[0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875, 0.5625, 0.6,  
+0.625, 0.65625, 0.75, 0.8, 1.0]`
 
+These values were chosen with a maximum screen width of 2560px in mind where    
+each scaling factor corresponds to a common width.  For example:  
+ 
+    1.0 ->  2560px
+    .8  ->  2048px
+    .75 ->  1920px
+    ...
+    .4  ->  1024px
+    etc...
+
+The assumption is that if a layout is designed for a 2560px width, each  
+image is exactly cropped to fit the expected rendered dimensions of their html  
+element with no stuffing or stretching going on.   
+
+For example if you have a background-image, a logo, and a banner on a page where   
+the background-image takes up the entire window, the banner is 80% of the screen   
+width, and the logo is 10%, with the default settings `media-helper` expects you   
+to upload images with the following widths:  
+
+image          | width
+--------------:|:------
+background.jpg | 2560px
+banner.jpg     | 2048px
+logo.png       | 256px
+
+So for the logo and background image, the auto-scaling feature would create the  
+following sized images(widths are in px of course):  
+    
+scaling factor | 0.3 | 0.3125 | 0.4 | 0.426953125 | [...] | 0.75 | 0.8 | 1.0  
+--------------:|-----|--------|-----|-------------|-------|------|-----|-----
+background.jpg | 768 | 800    | 1024| 1093        | [...] | 1920 | 2048| 2560  
+logo.png       | 77  | 80     | 103 | 110         | [...] | 193  | 205 | 256  
+
+Two things to point out,
+
+1. it always rounds up to the nearest pixel
+
+2. this doesn't take into account any additional rounding preferences, making it 
+a good time to go into that.
+
+
+### `MEDIA_HELPER_ROUND_TO`
+
+This is probably one of the most important features because it is intended to 
+prevent a deluge of images being created, it is especially helpful for sites
+with many images.
+
+It is simply an integer representing the near # to round to.
+
+**default value:** `10`
+
+This value was chosen rather arbitrarily, but I figure it's large enough to 
+account for slight variations in browsers.
+
+
+### `MEDIA_HELPER_DEFAULT`
+
+This is the scaling factor for the low-res default/placeholder.
+
+**default value:** `.5`
+
+
+### `MEDIA_HELPER_QUALITY`
+
+The quality of the low-res image.
+
+**default value:** `50`
+
+default values for `MEDIA_HELPER_DEFAULT` and `MEDIA_HELPER_QUALITY` were also 
+chosen without any particular reasoning other than "make smaller." No science
+included.
+
+
+### `MEDIA_HELPER_ALLOWED_ENCODINGS`
+
+This tells media_helper which file extensions to recognize, but isn't checked 
+intelligently.  It's simply a string comparison, but in case of errors, it 
+should fail gracefully.
+
+**default values:** `['jpg', 'jpeg', 'png']`
 
 ## What it does **not** do (...yet?) ##
 
-1. It does not scale up.  It only smaller images.  
+1. It does not scale up.  It only shrinks images.  
+
+2. It doesn't resize images found under STATIC_URL
+
+3. It doesn't handle javascript image zooming libraries very well, particularly  
+if they source the same image or the display is set to none

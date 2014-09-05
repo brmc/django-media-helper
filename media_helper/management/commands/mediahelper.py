@@ -62,7 +62,7 @@ class Command(NoArgsCommand):
             # Returning original state...
             options['resize-all'] = resize_all
             options['resize-originals'] = resize_originals
-            # except for restore which doesn't need to be called again
+            # ...except for restore which doesn't need to be called again
             options['restore'] = False
             try:
                 shutil.rmtree(os.path.join(django_settings.MEDIA_ROOT, 'media-helper'))
@@ -112,8 +112,11 @@ class Command(NoArgsCommand):
                             skipped += 1
                     if options['resize-originals']:
                         if resize_original(image_path, paths['backup_path']):
+                            resized += 1
                             if options['verbosity'] > '0':
                                 self.stdout.write('Resizing %s' % image_path)
+                        else:
+                            skipped += 1
 
                     if options['resize-all']:
                         if self.resize_all(image_path, **options):
@@ -149,18 +152,18 @@ class Command(NoArgsCommand):
             return False
         
         try:
-            if options['verbosity'] > '1':
-                self.stdout.write("Backing up and creating placeholder for %s " % image_path)
+            if options['verbosity'] > '0':
+                self.stdout.write("Resizing %s " % image_path)
 
-            for size in Settings().sizes:
-                # scale width
-                new_size = int(size * width)
+            for scaling_factor in Settings().sizes:
+                new_size = int(scaling_factor * width)
                 
-                if options['verbosity'] > '2':
+                if options['verbosity'] > '1':
                     self.stdout.write("Resizing %s to %dpx wide" % (image_path, new_size))
-                resize(image_path, new_size)
+                
+                return resize(image_path, new_size)
        
         except:
             raise
-        return True
+
 

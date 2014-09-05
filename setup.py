@@ -21,8 +21,8 @@ setup(
     long_description = open('README.markdown').read(), 
     author       = 'Brian McClure',
     author_email = 'brian.mcclr@gmail.com',
-    url          = 'https://bitbucket.org/brmcllr/django_media_helper.git',
-    download_url = 'https://github.com/un1t/django-cleanup/tarball/master',
+    url          = 'https://bitbucket.org/brmcllr/django_media_helper',
+    download_url = 'https://bitbucket.org/brmcllr/django_media_helper.git',
     license      = 'MIT License',
     keywords     = 'django, imaging, ajax',
     classifiers  = [

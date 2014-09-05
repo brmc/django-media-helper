@@ -5,6 +5,11 @@
 
 ## Quick start ##
 
+i\. **Requirements**
+
+1. Jquery
+2. Pillow
+
 1\. **Installation**
 
     pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
@@ -210,6 +215,10 @@ be broken,  here are some management commands that might be useful.
 
 
 ### Management Command: `mediahelper` ###
+
+**note: there aren't any tests written for these commands yet.  Use them at 
+your own risk.  I've used them on three small sites in production without 
+problem.** 
 
 This command is used to retrofit the media_helper app into a project that  
 already exists. With it you can resize all images found in the MEDIA_ROOT  

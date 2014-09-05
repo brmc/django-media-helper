@@ -34,7 +34,6 @@ def resize(image_path, new_width):
         return False
 
     if not os.path.isfile(paths['backup_path']):
-        print 234234
         move_original(paths['request_system_path'])
         resize_original(paths['request_system_path'], paths['backup_path'])
 
@@ -61,10 +60,10 @@ def resize(image_path, new_width):
         return True
     except KeyError:
         print "Unknown encoding or bad file name"
-        return False
     except (IOError, SystemError):
         print "Corrupt data.  Check yo nuts: %s " % paths['backup_path']
-        return False
+
+    return False
 
 def move_original(image_path):
     ''' Copies the original image to a backup directory 
