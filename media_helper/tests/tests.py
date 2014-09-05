@@ -4,7 +4,6 @@ from django.test import TestCase
 from django.conf import settings
 from django.db import models
 from media_helper.models import TestModel
-from media_helper.tools.resizers import resize
 from .settings import Settings
 #from football.models import Test
 
@@ -26,7 +25,7 @@ class ResizerTest(TestCase):
         self.assertTrue(n.count(m) == 1)
 
     def test_find_field_attribute(self):
-        from media_helper.tools.finders import find_field_attribute
+        from media_helper.tools.resizers import find_field_attribute
         
         self.assertTrue(["image"], find_field_attribute("name", TestModel))
 
@@ -34,25 +33,16 @@ class ResizerTest(TestCase):
         import media_helper
         import os
         from PIL import Image
-        from media_helper.tools.helpers import construct_paths
         
+        media_root = os.path.join(media_helper.__path__[0], "test-files/")
+
         settings.MEDIA_URL = '/test-files/'
         
-        root = settings.MEDIA_ROOT = os.path.join(os.getcwd(), 'test-files')
-
-        new_image_path = os.path.join(root, 'media-helper/upload/image.png/30.png"',)
-        image_path = os.path.join(root, "upload/image.png")
-        paths = construct_paths(image_path)
-
-        resize(image_path, 3)
-        resized = os.path.join(paths['response_system_path'], '30.png')
-        #self.assertEqual(paths['response_system_path'], image_path)
-        self.assertTrue(os.path.isfile(new_image_path))
-
-        image = Image.open(new_image_path)
-        self.assertEqual((30, 30), image.size)
-
-        os.remove(new_image_path)
+        image_path = os.path.join(media_root, "upload/image.png")
+        media_helper.resizer.resize(media_root, "path", .75, image_path)
+        image = Image.open(os.path.join(media_root, "path/upload/image.png"))
+        self.assertEqual((40, 40), image.size)
+        os.remove(os.path.join(media_root, "path/upload/image.png"))
         
         image_path = os.path.join(media_root, "upload/image.txt")
         media_helper.resizer.resize(media_root, "path", .75, image_path)
@@ -95,7 +85,7 @@ class ResizerTest(TestCase):
         import shutil
         from django.conf import settings
         from media_helper.tools.helpers import create_directories
-        new = os.path.join(os.getcwd(), 'pathname')
+        new = os.path.join(os.getcwd, 'pathname')
         create_directories(os.getcwd(), "pathname")
 
         self.assertTrue(os.path.isdir(new))
@@ -111,27 +101,9 @@ class ResizerTest(TestCase):
             [0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875, 0.5625, 0.6, 0.625, 0.65625, 0.75, 0.8, 1.0]
         )
 
+        self.assertEqual(settings.maximum, 2560)
         self.assertEqual(settings.minimum, 800)
-        self.assertEqual(settings.default, .5)
-        self.assertEqual(settings.quality, 50)
+        self.assertEqual(settings.step_size, 220)
+        self.assertEqual(settings.default, .4)
         self.assertEqual(settings.allowed_encodings, ['jpg', 'jpeg', 'png'])
 
-
-
-class HelpersTest(TestCase):
-    def test_construct_paths(self):
-        import os.path
-        from media_helper.tools.helpers import construct_paths
-        settings.MEDIA_URL = '/test-files/'
-        settings.MEDIA_ROOT = '/junky-butter/peanuts/'
-
-        paths = construct_paths("doo/1.jpg")
-
-        self.assertEqual(paths['image_name'], 'doo/1.jpg')
-        self.assertEqual(paths['request_path'], '/test-files/doo/1.jpg')
-        self.assertEqual(paths['request_system_path'], '/junky-butter/peanuts/doo/1.jpg')
-        self.assertEqual(paths['response_path'], '/test-files/media-helper/doo/1.jpg')
-        self.assertEqual(paths['media_helper_root'], '/junky-butter/peanuts/media-helper')
-        self.assertEqual(paths['backup_path'], '/junky-butter/peanuts/media-helper/doo/1.jpg/original.jpeg')
-        self.assertEqual(paths['backup_response_path'], '/test-files/media-helper/doo/1.jpg/original.jpeg')
-        self.assertEqual(paths['response_system_path'], '/junky-butter/peanuts/media-helper/doo/1.jpg')

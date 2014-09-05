@@ -17,9 +17,7 @@ setup(
     packages = find_packages(),
     include_package_data=True,
     requires = ['python (>= 2.5)', 'django (>= 1.6)', 'Pillow (>= 2.1.0)'],
-    description  = 'Deletes old files, resizes images, and uses ajax to deliver '\
-                    'resized images to speed up load times. A fork of '\
-                    'django-cleanup.',
+    description  = 'A image resizing and management app for Django',
     long_description = open('README.markdown').read(), 
     author       = 'Brian McClure',
     author_email = 'brian.mcclr@gmail.com',

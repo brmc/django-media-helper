@@ -52,36 +52,38 @@ def get_resized_images(images):
             continue
 
         # image sizes will be rounded
-        size = image[1]
+        new_size = image[1]
         round_to = Settings().round_to
 
-        if size % round_to != 0:
-            size += round_to - size % round_to
+        if new_size % round_to != 0:
+            new_size += round_to - new_size % round_to
 
         # named according to size
-        resized_image_name = "%d.%s" % (size, encoding)            
+        resized_image_name = "%d.%s" % (new_size, encoding)            
         new_request_path = os.path.join(paths['response_path'], resized_image_name)
         new_image_path = os.path.join(paths['response_system_path'], resized_image_name)
         
         if os.path.isfile(new_image_path):
             new_images[old_request_path] = new_request_path
+
         elif not image[0].startswith(dj_settings.STATIC_URL):
             result = resize(image[0], image[1]) 
-            if result == True:
+            
+            if result == True: # successful resizing
                 new_images[old_request_path] = new_request_path
-            elif result == False:
+            elif result == False: # failed.  Low-res used
                 new_images[old_request_path] = old_request_path
-            else:
+            else:  # requested size was larger than original.  Original returned
                 new_images[old_request_path] = result
+        
         else:
-            # Use original image
             new_images[old_request_path] = old_request_path         
     return new_images
 
 def check_images(images):
     from ast import literal_eval
-    # convert to python object
-    try:
+    
+    try:  # convert to python object
         images = literal_eval(images)
     except:
         return None
@@ -117,7 +119,8 @@ def resolution(request):
             new_images = get_resized_images(images )
             json['images'] = new_images
 
-        # same as above
+        # same as above...i don't remember why i have these separate, but i 
+        # know I had a reason at some point.
         backgrounds = check_images(request.POST.get('backgrounds'))
         if backgrounds is not None:
             new_backgrounds = get_resized_images(backgrounds)
@@ -129,8 +132,3 @@ def resolution(request):
 
     else:
         return HttpResponseForbidden()
-
-def insert_folder(width):
-    '''Choses folder larger than width'''
-    pass#return [key for key, val in get_sizes().iteritems() if float(key) > width]
-

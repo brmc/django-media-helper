@@ -34,6 +34,7 @@ def resize(image_path, new_width):
         return False
 
     if not os.path.isfile(paths['backup_path']):
+        print 234234
         move_original(paths['request_system_path'])
         resize_original(paths['request_system_path'], paths['backup_path'])
 
@@ -46,7 +47,7 @@ def resize(image_path, new_width):
     if new_width % round_to != 0:
         new_width += round_to - new_width % round_to
     
-    # Don't scale image up
+    # Don't resize larger than the original size
     if new_width > width:
         return paths['backup_response_path']
 
@@ -54,8 +55,6 @@ def resize(image_path, new_width):
 
     new_image = image.resize((new_width, int(height * scaling_factor)), Image.ANTIALIAS)
     create_directories(paths['media_helper_root'], image_name)
-
-
 
     try:
         new_image.save(os.path.join(paths['response_system_path'], str(new_width) + "." + encoding,), encoding,  quality=85, optimize = True)
