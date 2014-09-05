@@ -225,11 +225,11 @@ already exists. With it you can resize all images found in the MEDIA_ROOT
 directory, resize/adjust the quality of the placeholder image, delete all  
 resized images, and/or restore images to their original size, quality and  
 location.  If all command options are used simultaneously, they will be  
-processed in the following order:
-   --restore   
-   --delete
-   --resize-originals
-   --resize-all
+processed in the following order:  
+   --restore    
+   --delete  
+   --resize-originals  
+   --resize-all  
 
 And note that whenever --delete is passed, --restore will be forced so you  
 don't risk losing your original images.  
