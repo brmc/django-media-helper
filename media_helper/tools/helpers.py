@@ -30,6 +30,14 @@ def check_encoding(image_name):
 def construct_paths(image_name):
     ''' Construcs a dict of commonly used paths 
 
+    These are a series of similar paths used and translated during the request
+    and response process.  It creates paths for the 
+       - location on disc, 
+       - the URL it was requested by
+       - the media-helper equivalents of both
+       - the physical backup/master-image path
+       - and URL path for the backup
+
     :param image_name: the name of the image with the upload_to dir prepended
     :type image_name: string
     :returns: dict
@@ -52,8 +60,6 @@ def construct_paths(image_name):
 def create_directories(directory, image_name):
     """ Creates new directories in the media-helper directory
 
-    This creates an additional directory from the image name underwhich
-    corresponding resized images with be saved.
 
     Arguments:
     :param directory: root directory

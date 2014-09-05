@@ -1,12 +1,9 @@
-#from pillow import Image
-
 from django.test import TestCase
 from django.conf import settings
 from django.db import models
 from media_helper.models import TestModel
 from media_helper.tools.resizers import resize
 from media_helper.settings import Settings
-#from football.models import Test
 
 class ResizersTest(TestCase):
     scaling_factors = {

@@ -81,6 +81,17 @@ def get_resized_images(images):
     return new_images
 
 def check_images(images):
+    ''' Validates the data received via ajax
+    
+    First it checks to see if the data can be converted to a python object.
+
+    Then it checks to see if it is a list of (str, int) tuples
+
+    Arguments:
+    :param images: a supposed string representation of list of (str, int) tuples
+    :type images: str
+    :returns None or a list
+    '''
     from ast import literal_eval
     
     try:  # convert to python object
@@ -89,18 +100,43 @@ def check_images(images):
         return None
 
     # Check if images is a list of (str, int) tuples
-    if (isinstance(images, list) and 
-            len(images) > 0 and
-            isinstance(images[0], tuple) and
-            len(images[0]) == 2 and
-            isinstance(images[0][0], str) and 
-            isinstance(images[0][1], int)):
+    if isinstance(images, list) and len(images) > 0:
+        for image in images:
+            if (isinstance(image, tuple) and 
+                    len(image) == 2 and
+                    isinstance(image[0], str) and 
+                    isinstance(image[1], int)):
+                continue
+            else:
+                return None 
         return images
-    return None
+    else:
+        return None
 
 
 def resolution(request):
-    ''' Finds or resizes images and returns them via ajax '''
+    ''' Finds or resizes images and returns them via ajax 
+
+    This is the view that handles the entire resizing and delivery process,
+    which is summed up as follows(this is a description of the whole process,
+    not just this function).
+
+    First, the data received from the client is validated.  It should include 
+    two string representations of python lists of (str, int) tuples. The string
+    being the original image name, the int being the new size of an image
+
+    Then it rounds the size up to a value defined by the settings, and requests
+    a new image.  If the image doesn't exist, the master copy of the image will
+    be used  to generate a new copy.  
+
+    If the new image is larger than the master copy, the path to the master copy
+    will be returned.  
+
+    If any thing else goes wrong, the placeholder image will be returned.
+
+    Finally everything is packed into a json string and shipped back to the 
+    client.
+    '''
     import warnings
     warnings.warn(
         "The name of this view/URL pair will be changed in future versions. Its name no longer"\

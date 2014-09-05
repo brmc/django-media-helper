@@ -14,7 +14,17 @@ from .helpers import construct_paths, check_encoding, create_directories
 def resize(image_path, new_width):
     """ A single image is resized and saved to a new directory.
 
-    It will be rounded up according to the settings.
+    This is the cornerstone of the app where all resizing actually happens. This 
+    function receives the image path (relative or absolute with the upload_to
+    folder prepended) and the new size of the image.  
+
+    Using the image path as a guide, the master copy of the image is loaded,
+    and if the encoding is allowed by the settings, a resized image will be
+    created. To avoid too many images being created, images will be rounded up
+    to a value determined by the setting `MEDIA_HELPER_ROUND_TO` 
+
+    If no backup image is found, one will be created, and a low-res placeholder
+    image to go with it.
 
     Arguments:
     :param image_path: the upload_to directory and the file name. extra path
@@ -22,7 +32,7 @@ def resize(image_path, new_width):
     :type image_path: string
     :param new_width: new width in px
     :type new_width: int
-    :returns: None
+    :returns: True or False
     """
     from PIL import Image
 
@@ -68,11 +78,15 @@ def resize(image_path, new_width):
 def move_original(image_path):
     ''' Copies the original image to a backup directory 
 
-    This image will be the image used when resizing.
+    This image will be the master copy used when resizing, and it will be stored
+    in <MEDIA_ROOT>/media-helper/<imagename>/original.ext
+
+    It is called on saving, when no backup image is found, and when using the
+    `media_helper` commands.
 
     :param image_path: absolute or relative path of image
     :type image_path: str
-    :returns: path of backup image.
+    :returns: True, False, or the path of the backup image.
     '''
 
     import shutil
@@ -99,11 +113,19 @@ def move_original(image_path):
 def resize_original(image_path, backup_path):
     ''' Creates a low-quality version of the original image
 
-    This will be delivered by the initial request and will be replaced via ajax
-    :param image_path: absolute location of image.
+    This image will be the placeholder image first rendered by the template and 
+    will be replaced via ajax once an appropriate image is found or created.
 
-    If this resizing fails, it will do so silently and use the original
+    It is called when a model is saved, when an image is resized and no backup
+    copy is found, or from the the `mediahelper` management command.
+
+    Arguments:
+    :param image_path: absolute location of image.
     :type image_path: str
+    :param backup_path: path of the backup copy of the time
+    :type backup_path: str
+    If this resizing fails, it will do so silently and use the original
+    :returns: True or False, depending on success
     '''
     default_size = Settings().default
     default_quality = Settings().quality
@@ -136,7 +158,13 @@ def resize_original(image_path, backup_path):
         return False
 
 def resize_on_save(sender, instance, *args, **kwargs):
-    """ Resizes an image when a model field is saved according to user-defined settings.
+    """ Resizes an image when a model field is saved 
+
+    If the `MEDIA_HELPER_AUTO` setting is True, a series of images will be 
+    generated when a model field is saved.  The images will be scaled down 
+    according to the `MEDIA_HELPER_SIZES` setting.
+
+    Obviously this is called when the model is saved.
     """
     from .finders import find_field_attribute
     
@@ -163,39 +191,12 @@ def resize_on_save(sender, instance, *args, **kwargs):
 
         resize_original(image_path, backup_path)
 
-def resize_all(media_root, width):
-    """ Resizes all images in upload directories for a new screen width
-
-    :param root MEDIA_ROOT
-    :param width: a string representation of an integer
-    """
-
-    new_size = Settings().generate_scaling_factors([width,]) 
-    upload_dirs = find_field_attribute("upload_to", *find_models_with_field(models.ImageField))
-    
-    # This block iterates through upload_to directories, each sub directory,
-    # and finally resizes each file.
-    for upload_dir in upload_dirs:
-        # Source dir from which images will be resized
-        source_dir = os.path.join(media_root, upload_dir)
-        
-        if os.path.isdir(source_dir):
-            # The directory for the newly scaled images
-            resize_dir = os.path.join(media_root, width, upload_dir)
-            create_directories(media_root, upload_dir)
-            
-            for subdir, dirs, files in os.walk(source_dir):
-                for file in files:
-                    new_file = os.path.join(resize_dir, upload_dir, file)
-                    
-                    if not os.path.isfile(new_file):
-                        image_path = os.path.join(subdir, file)
-                        
-                        resize(media_root, new_size.keys()[0], new_size.values()[0], image_path)
-
-    
 def delete_resized_images(sender, instance, *args, **kwargs):
-    """ Deletes all scaled images folder when image is deleted """
+    """ Deletes all scaled images folder when image is deleted 
+
+    When an image is changed or deleted, the corresponding directory tree in
+    <MEDIA_ROOT>/media-helper will be also removed.
+    """
     from .finders import find_field_attribute
     import shutil
     
