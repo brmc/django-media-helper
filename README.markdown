@@ -163,7 +163,7 @@ should be fine.
 
 **1\.** Install media_helper:  
     
-    pip install git+https://bitbucket.org/brmcllr/django_media_helper.git  
+    pip install django-media-helper
 
 
 
