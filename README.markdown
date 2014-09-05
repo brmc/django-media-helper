@@ -12,7 +12,7 @@ i\. **Requirements**
 
 1\. **Installation**
 
-    pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
+    pip install django-media-helper     
 
 2\. **settings.py:**  
      
