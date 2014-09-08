@@ -40,7 +40,7 @@ urlpatterns = patterns('',
 3\. **Templates:**
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>  
-    {% include 'media-helper/ajax.html' %}
+    {% include 'media_helper/ajax.html' %}
 
 That should be it for default functionality  
 
@@ -195,7 +195,7 @@ so include the following template somewhere *after* jquery, like so:
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>  
     ...
-    {% include 'media-helper/ajax.html' %}  
+    {% include 'media_helper/ajax.html' %}  
 
 (This is safe to use inside django-compressor `compress` tags)
 
