@@ -44,6 +44,28 @@ urlpatterns = patterns('',
 
 That should be it for default functionality  
 
+* Bug notice: if the image has no dimension defined in the CSS, or if the width  
+is defined simply with a min- or max-width, a size of 0px is sent to the server  
+which produces a somewhat less-than-desirable result :/ I will fix this as soon  
+as I have time, but until then, just be aware of the istuation *
+
+# Changelog (Recent changes only)  
+
+### v.0.1.3  
+
+#### Bug fixes  
+
+* Fixed premature loop exit in `management.commands.mediahelper.resize-all` causing it to only generate 1 scaled image.  Now it should work properly.
+
+### v0.1.2  
+
+#### Bug fixes/corrections   
+
+* Templates were not included in the pypi package  
+
+* Typo in the documentation preventing proper template usage  
+
+
 
 ## General Info ##
 
@@ -106,6 +128,16 @@ and if the browser window is not maximized, it scales it up so image quality
 won't be lost in case the user **does** maximize the window. **This assumes  
 you're using a responsive design with images whose sizes are not statically  
 defined.  In the near future I will accomodate for for alternate scenarios**
+
+** One person was under the impression that 3 requests were made per image:
+
+1. initial request  
+2. ajax  
+3. request for resized image.
+
+That is not the case.  Well, it is true if there is only one image on a page,  
+but all ajax requests are bundled together, so the total number of requests  
+approaches 2 as the number of images increases.**
 
 
 ### Something to consider ###
