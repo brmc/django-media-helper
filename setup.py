@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name     = 'django-media-helper',
-    version  = '0.1.2',
+    version  = '0.1.3',
     packages = find_packages(),
     include_package_data=True,
     requires = ['python (>= 2.5)', 'django (>= 1.6)', 'Pillow (>= 2.1.0)'],
