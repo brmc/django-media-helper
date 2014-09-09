@@ -161,7 +161,8 @@ class Command(NoArgsCommand):
                 if options['verbosity'] > '1':
                     self.stdout.write("Resizing %s to %dpx wide" % (image_path, new_size))
                 
-                return resize(image_path, new_size)
+                resize(image_path, new_size)
+            return True
        
         except:
             raise

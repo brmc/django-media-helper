@@ -1,0 +1,21 @@
+# Changelog
+
+## v.0.1.3
+
+### Bug fixes
+
+* Fixed premature loop exiting in `management.commands.mediahelper.resize-all`.  It now resizes according to all settings.
+
+## v0.1.2
+
+### Bug fixes/corrections
+
+* Templates were not included in the pypi package
+
+* Typo in the documentation preventing proper template usage
+
+
+## v0.1.1  
+
+* initial release
+
