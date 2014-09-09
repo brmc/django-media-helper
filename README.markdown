@@ -55,7 +55,8 @@ as I have time, but until then, just be aware of the istuation**
 
 #### Bug fixes  
 
-* Fixed premature loop exit in `management.commands.mediahelper.resize-all` causing it to only generate 1 scaled image.  Now it should work properly.
+* Fixed premature loop exit in `management.commands.mediahelper.resize-all`  
+causing it to only generate 1 scaled image.  Now it should work properly.
 
 ### v0.1.2  
 
@@ -129,14 +130,10 @@ won't be lost in case the user **does** maximize the window. **This assumes
 you're using a responsive design with images whose sizes are not statically  
 defined.  In the near future I will accomodate for for alternate scenarios**
 
-** One person was under the impression that 3 requests were made per image:
-
-1. initial request  
-2. ajax  
-3. request for resized image.
-
-That is not the case.  Well, it is true if there is only one image on a page,  
-but all ajax requests are bundled together, so the total number of requests  
+**One person was under the impression that 3 requests were made per image  
+(initial request, ajax, and the request for resized image), but that is not  
+the case.  Well, it is true if there is only one image per page, but all  
+ajax requests are bundled together, so the average number of requests  
 approaches 2 as the number of images increases.**
 
 
