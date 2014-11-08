@@ -12,4 +12,3 @@ if django.VERSION >= (1, 7):
         def ready(self):
             connect_signals()
             resize_signals()
-            

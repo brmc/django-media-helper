@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 '''
-This is legacy code from the original django-cleanup.  I haven't modified it yet
+This is legacy code from the original django-cleanup.  I haven't modified it
+yet.
+
 Find the original code here:
 https://github.com/un1t/django-cleanup
 '''
-import os
 import logging
-import django
 from django.db import models
 from django.db.models.signals import pre_save, post_delete
 
-
-from django.conf import settings
-
 logger = logging.getLogger(__name__)
 
-def find_models_with_filefield(): 
+
+def find_models_with_filefield():
     '''
     Returns a list of models that have a file field
     '''
@@ -27,6 +25,7 @@ def find_models_with_filefield():
                 result.append(model)
                 break
     return result
+
 
 def remove_old_files(sender, instance, **kwargs):
     if not instance.pk:
@@ -43,12 +42,18 @@ def remove_old_files(sender, instance, **kwargs):
         old_file = getattr(old_instance, field.name)
         new_file = getattr(instance, field.name)
         storage = old_file.storage
-        
-        if old_file and old_file != new_file and storage and storage.exists(old_file.name):
+
+        if (old_file and
+                old_file != new_file and
+                storage and
+                storage.exists(old_file.name)):
             try:
                 storage.delete(old_file.name)
             except Exception:
-                logger.exception("Unexpected exception while attempting to delete old file '%s'" % old_file.name)
+                logger.exception(
+                    "Unexpected exception while attempting to delete old "
+                    "file '%s'" % old_file.name)
+
 
 def remove_files(sender, instance, **kwargs):
     for field in instance._meta.fields:
@@ -60,11 +65,12 @@ def remove_files(sender, instance, **kwargs):
             try:
                 storage.delete(file_to_delete.name)
             except Exception:
-                logger.exception("Unexpected exception while attempting to delete file '%s'" % file_to_delete.name)
+                logger.exception(
+                    "Unexpected exception while attempting to delete "
+                    "file '%s'" % file_to_delete.name)
+
 
 def connect_signals():
     for model in find_models_with_filefield():
         pre_save.connect(remove_old_files, sender=model)
         post_delete.connect(remove_files, sender=model)
-
-

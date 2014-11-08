@@ -1,5 +1,17 @@
 # Changelog
 
+## v.0.1.4
+
+### General
+
+* Cleaned up style
+
+### Bud fixes
+
+* Ungrouped default-size and quality settings so that if a user defines only  
+one, the setting will not be ignored
+
+
 ## v.0.1.3
 
 ### Bug fixes

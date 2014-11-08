@@ -11,24 +11,25 @@ from django.db.models.signals import post_save, pre_delete
 from media_helper.settings import Settings
 from .helpers import construct_paths, check_encoding, create_directories
 
+
 def resize(image_path, new_width):
     """ A single image is resized and saved to a new directory.
 
-    This is the cornerstone of the app where all resizing actually happens. This 
-    function receives the image path (relative or absolute with the upload_to
-    folder prepended) and the new size of the image.  
+    This is the cornerstone of the app where all resizing actually happens.
+    This function receives the image path (relative or absolute with the
+    upload_to folder prepended) and the new size of the image.
 
     Using the image path as a guide, the master copy of the image is loaded,
     and if the encoding is allowed by the settings, a resized image will be
     created. To avoid too many images being created, images will be rounded up
-    to a value determined by the setting `MEDIA_HELPER_ROUND_TO` 
+    to a value determined by the setting `MEDIA_HELPER_ROUND_TO`
 
     If no backup image is found, one will be created, and a low-res placeholder
     image to go with it.
 
     Arguments:
     :param image_path: the upload_to directory and the file name. extra path
-                       info is ok too.  absolute paths will be stripped. 
+                       info is ok too.  absolute paths will be stripped.
     :type image_path: string
     :param new_width: new width in px
     :type new_width: int
@@ -38,7 +39,7 @@ def resize(image_path, new_width):
 
     paths = construct_paths(image_path)
     image_name = paths['image_name']
- 
+
     encoding = check_encoding(image_name)
     if not encoding:
         return False
@@ -48,25 +49,35 @@ def resize(image_path, new_width):
         resize_original(paths['request_system_path'], paths['backup_path'])
 
     image = Image.open(paths['backup_path'])
-    
+
     width, height = image.size
     round_to = Settings().round_to
 
     # Round up
     if new_width % round_to != 0:
         new_width += round_to - new_width % round_to
-    
+
     # Don't resize larger than the original size
     if new_width > width:
         return paths['backup_response_path']
 
     scaling_factor = float(new_width) / float(width)
 
-    new_image = image.resize((new_width, int(height * scaling_factor)), Image.ANTIALIAS)
+    new_image = image.resize(
+        (new_width, int(height * scaling_factor)),
+        Image.ANTIALIAS
+    )
     create_directories(paths['media_helper_root'], image_name)
 
     try:
-        new_image.save(os.path.join(paths['response_system_path'], str(new_width) + "." + encoding,), encoding,  quality=85, optimize = True)
+        new_image.save(
+            os.path.join(
+                paths['response_system_path'],
+                str(new_width) + "." + encoding,
+            ),
+            encoding,
+            quality=85,
+            optimize=True)
         return True
     except KeyError:
         print "Unknown encoding or bad file name"
@@ -75,11 +86,12 @@ def resize(image_path, new_width):
 
     return False
 
-def move_original(image_path):
-    ''' Copies the original image to a backup directory 
 
-    This image will be the master copy used when resizing, and it will be stored
-    in <MEDIA_ROOT>/media-helper/<imagename>/original.ext
+def move_original(image_path):
+    ''' Copies the original image to a backup directory
+
+    This image will be the master copy used when resizing, and it will be
+    stored in <MEDIA_ROOT>/media-helper/<imagename>/original.ext
 
     It is called on saving, when no backup image is found, and when using the
     `media_helper` commands.
@@ -110,10 +122,11 @@ def move_original(image_path):
 
     return paths['backup_path']
 
+
 def resize_original(image_path, backup_path):
     ''' Creates a low-quality version of the original image
 
-    This image will be the placeholder image first rendered by the template and 
+    This image will be the placeholder image first rendered by the template and
     will be replaced via ajax once an appropriate image is found or created.
 
     It is called when a model is saved, when an image is resized and no backup
@@ -145,10 +158,15 @@ def resize_original(image_path, backup_path):
 
     try:
         image = image.resize(
-            (int(width * default_size), int(height * default_size)), 
+            (int(width * default_size), int(height * default_size)),
             Image.ANTIALIAS
         )
-        image.save(image_path, encoding,  quality=default_quality, optimize = True)
+        image.save(
+            image_path,
+            encoding,
+            quality=default_quality,
+            optimize=True
+        )
         return True
     except:
         warnings.warn(
@@ -157,24 +175,25 @@ def resize_original(image_path, backup_path):
         )
         return False
 
-def resize_on_save(sender, instance, *args, **kwargs):
-    """ Resizes an image when a model field is saved 
 
-    If the `MEDIA_HELPER_AUTO` setting is True, a series of images will be 
-    generated when a model field is saved.  The images will be scaled down 
+def resize_on_save(sender, instance, *args, **kwargs):
+    """ Resizes an image when a model field is saved
+
+    If the `MEDIA_HELPER_AUTO` setting is True, a series of images will be
+    generated when a model field is saved.  The images will be scaled down
     according to the `MEDIA_HELPER_SIZES` setting.
 
     Obviously this is called when the model is saved.
     """
     from .finders import find_field_attribute
-    
+
     if not Settings().auto:
         return
-        
+
     default_size = Settings().default
 
     sizes = Settings().sizes
-    
+
     # sets full path of image to be opened
     for name in find_field_attribute("name", instance):
         image_instance = getattr(instance, name)
@@ -183,7 +202,7 @@ def resize_on_save(sender, instance, *args, **kwargs):
         image_path = image_instance.file.name
 
         image = Image.open(image_path)
-       
+
         width, height = image.size
         # iterates over sizes, scales, and saves accordingly.
         for size in sizes:
@@ -191,25 +210,29 @@ def resize_on_save(sender, instance, *args, **kwargs):
 
         resize_original(image_path, backup_path)
 
+
 def delete_resized_images(sender, instance, *args, **kwargs):
-    """ Deletes all scaled images folder when image is deleted 
+    """ Deletes all scaled images folder when image is deleted
 
     When an image is changed or deleted, the corresponding directory tree in
     <MEDIA_ROOT>/media-helper will be also removed.
     """
     from .finders import find_field_attribute
     import shutil
-    
+
     for name in find_field_attribute("name", instance):
-        directory = os.path.join(settings.MEDIA_ROOT, 'media-helper', getattr(instance, name).name)
+        directory = os.path.join(
+            settings.MEDIA_ROOT,
+            'media-helper',
+            getattr(instance, name).name
+        )
         if os.path.isdir(directory):
             shutil.rmtree(directory)
-    
+
 
 def resize_signals():
     """Connects signals for resizing and deletion"""
     from .finders import find_models_with_field
     for model in find_models_with_field(models.ImageField):
-        post_save.connect(resize_on_save, sender = model)
-        pre_delete.connect(delete_resized_images, sender = model)
-
+        post_save.connect(resize_on_save, sender=model)
+        pre_delete.connect(delete_resized_images, sender=model)

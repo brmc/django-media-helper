@@ -97,7 +97,7 @@ $(document).ready(function(){
     backgrounds = "["
     background_list = []
 
-    $('div').each(function(){
+    $('*').each(function(){
         if ($(this).css('background-image') != "none"){
             background = strip_path($(this).css('background-image'));
             {# the stripping pattern works for the back ground image, but there is a closing parenthesis to consider #}

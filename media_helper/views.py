@@ -2,13 +2,13 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings as dj_settings
 
 from .settings import Settings
-from .tools.resizers import resize # resize_all, 
+from .tools.resizers import resize
 from .tools.helpers import construct_paths, check_encoding
 
 
 def get_resized_images(images):
     ''' Constructs a new image path for the appropriately sized image
-    
+
     If an image can't be resized, it falls back to the default image.
 
     Changes have been made.
@@ -33,7 +33,7 @@ def get_resized_images(images):
         image[0]: 'upload_to/image.ext'
         image[1]: integer
     :type images: list of tuples of strings
-    :returns: dict 
+    :returns: dict
     '''
 
     import os
@@ -44,7 +44,7 @@ def get_resized_images(images):
         # Common paths used often by this app.
         paths = construct_paths(image[0])
         old_request_path = paths['request_path']
-        
+
         # Only certain types of encodings are allowed by the settings
         encoding = check_encoding(image[0])
         if not encoding:
@@ -59,30 +59,30 @@ def get_resized_images(images):
             new_size += round_to - new_size % round_to
 
         # named according to size
-        resized_image_name = "%d.%s" % (new_size, encoding)            
+        resized_image_name = "%d.%s" % (new_size, encoding)
         new_request_path = os.path.join(paths['response_path'], resized_image_name)
         new_image_path = os.path.join(paths['response_system_path'], resized_image_name)
-        
+
         if os.path.isfile(new_image_path):
             new_images[old_request_path] = new_request_path
 
         elif not image[0].startswith(dj_settings.STATIC_URL):
-            result = resize(image[0], image[1]) 
-            
+            result = resize(image[0], image[1])
+
             if result == True: # successful resizing
                 new_images[old_request_path] = new_request_path
             elif result == False: # failed.  Low-res used
                 new_images[old_request_path] = old_request_path
             else:  # requested size was larger than original.  Original returned
                 new_images[old_request_path] = result
-        
+
         else:
-            new_images[old_request_path] = old_request_path         
+            new_images[old_request_path] = old_request_path
     return new_images
 
 def check_images(images):
     ''' Validates the data received via ajax
-    
+
     First it checks to see if the data can be converted to a python object.
 
     Then it checks to see if it is a list of (str, int) tuples
@@ -93,7 +93,7 @@ def check_images(images):
     :returns None or a list
     '''
     from ast import literal_eval
-    
+
     try:  # convert to python object
         images = literal_eval(images)
     except:
@@ -102,39 +102,39 @@ def check_images(images):
     # Check if images is a list of (str, int) tuples
     if isinstance(images, list) and len(images) > 0:
         for image in images:
-            if (isinstance(image, tuple) and 
+            if (isinstance(image, tuple) and
                     len(image) == 2 and
-                    isinstance(image[0], str) and 
+                    isinstance(image[0], str) and
                     isinstance(image[1], int)):
                 continue
             else:
-                return None 
+                return None
         return images
     else:
         return None
 
 
 def resolution(request):
-    ''' Finds or resizes images and returns them via ajax 
+    ''' Finds or resizes images and returns them via ajax
 
     This is the view that handles the entire resizing and delivery process,
     which is summed up as follows(this is a description of the whole process,
     not just this function).
 
-    First, the data received from the client is validated.  It should include 
+    First, the data received from the client is validated.  It should include
     two string representations of python lists of (str, int) tuples. The string
     being the original image name, the int being the new size of an image
 
     Then it rounds the size up to a value defined by the settings, and requests
     a new image.  If the image doesn't exist, the master copy of the image will
-    be used  to generate a new copy.  
+    be used  to generate a new copy.
 
     If the new image is larger than the master copy, the path to the master copy
-    will be returned.  
+    will be returned.
 
     If any thing else goes wrong, the placeholder image will be returned.
 
-    Finally everything is packed into a json string and shipped back to the 
+    Finally everything is packed into a json string and shipped back to the
     client.
     '''
     import warnings
@@ -143,7 +143,7 @@ def resolution(request):
         "reflects its function.  Please take note.",
         DeprecationWarning
         )
-    
+
     if request.is_ajax():
         import os
         from json import dumps
@@ -155,13 +155,13 @@ def resolution(request):
             new_images = get_resized_images(images )
             json['images'] = new_images
 
-        # same as above...i don't remember why i have these separate, but i 
+        # same as above...i don't remember why i have these separate, but i
         # know I had a reason at some point.
         backgrounds = check_images(request.POST.get('backgrounds'))
         if backgrounds is not None:
             new_backgrounds = get_resized_images(backgrounds)
             json['backgrounds'] = new_backgrounds
-        
+
         json = dumps(json)
 
         return HttpResponse(json, content_type = "application/json")
