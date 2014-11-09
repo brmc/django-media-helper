@@ -3,8 +3,8 @@ import django
 if django.VERSION >= (1, 7):
 
     from django.apps import AppConfig
-    from tools.cleanup import connect_signals
-    from tools.resizers import resize_signals
+    from .tools.cleanup import connect_signals
+    from .tools.resizers import resize_signals
 
     class CleanupConfig(AppConfig):
         name = 'media_helper'

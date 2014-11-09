@@ -22,6 +22,7 @@ class ResizersTest(TestCase):
 
         root = django_settings.MEDIA_ROOT = os.path.join(
             os.getcwd(),
+            'tests',
             'test-files')
 
         image_path = os.path.join(root, "upload/image.jpg")
@@ -40,6 +41,7 @@ class ResizersTest(TestCase):
 
         root = django_settings.MEDIA_ROOT = os.path.join(
             os.getcwd(),
+            'tests',
             'test-files')
 
         image_path = os.path.join(root, "upload/image.jpg")

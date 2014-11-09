@@ -9,6 +9,8 @@ DEBUG = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
+MIDDLEWARE_CLASSES = ('',)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

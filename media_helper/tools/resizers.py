@@ -80,9 +80,9 @@ def resize(image_path, new_width):
             optimize=True)
         return True
     except KeyError:
-        print "Unknown encoding or bad file name"
+        print("Unknown encoding or bad file name")
     except (IOError, SystemError):
-        print "Corrupt data.  Check yo nuts: %s " % paths['backup_path']
+        print("Corrupt data.  Check yo nuts: %s " % paths['backup_path'])
 
     return False
 

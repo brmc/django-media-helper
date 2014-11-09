@@ -1,1 +1,1 @@
-default_app_config = 'django_cleanup.apps.CleanupConfig'
+default_app_config = 'media_helper.apps.CleanupConfig'

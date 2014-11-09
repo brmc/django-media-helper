@@ -5,3 +5,5 @@ dist/
 CACHE/
 migrations/
 .pypirc
+.tox/
+__pycache__/
