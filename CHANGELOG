@@ -1,15 +1,17 @@
 # Changelog
 
-## v.0.1.4
+## v.0.1.4.a
+
+### Changes
+
+* settings module made less stupid.
+
+* tests divded into separate files
+
 
 ### General
 
-* Cleaned up style
-
-### Bud fixes
-
-* Ungrouped default-size and quality settings so that if a user defines only  
-one, the setting will not be ignored
+* Flaked the shit out of everything
 
 
 ## v.0.1.3

@@ -51,6 +51,20 @@ as I have time, but until then, just be aware of the istuation**
 
 # Changelog (Recent changes only)  
 
+## v.0.1.4.a
+
+### Changes
+
+* settings module made less stupid.
+
+* tests divded into separate files
+
+
+### General
+
+* Flaked the shit out of everything
+
+
 ### v.0.1.3  
 
 #### Bug fixes  
