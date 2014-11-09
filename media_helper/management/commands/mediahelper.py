@@ -5,20 +5,20 @@ from django.core.management.base import NoArgsCommand, CommandError
 from django.conf import settings as django_settings
 from media_helper.tools.resizers import resize, resize_original
 from media_helper.tools.helpers import construct_paths
-from media_helper.settings import Settings
+from media_helper import settings
 
 
 class Command(NoArgsCommand):
-    help = 'This command is used to retrofit the media_helper app into a '
-    'project that already exists. With it you can resize all images found '
-    'in the MEDIA_ROOT directory, resize/adjust the quality of the '
-    'placeholder image, delete all resized images, and/or restore images '
-    'to their original size, quality and location.  If all command options '
-    'are used simultaneously, they will be processed in the following '
-    'order:\n   --restore\n   --delete\n   --resize-originals\n'
-    '   --resize-all\n\nAnd note that whenever --delete is pass, '
-    "--restore will be forced so you don't risk losing your original "
-    'images.'
+    help = 'This command is used to retrofit the media_helper app into a ' \
+    'project that already exists. With it you can resize all images found ' \
+    'in the MEDIA_ROOT directory, resize/adjust the quality of the ' \
+    'placeholder image, delete all resized images, and/or restore images ' \
+    'to their original size, quality and location.  If all command options ' \
+    'are used simultaneously, they will be processed in the following ' \
+    'order:\n   --restore\n   --delete\n   --resize-originals\n' \
+    '   --resize-all\n\nAnd note that whenever --delete is pass, ' \
+    "--restore will be forced so you don't risk losing your original " \
+    'images.' \
 
     option_list = NoArgsCommand.option_list + (
         make_option(
@@ -70,15 +70,17 @@ class Command(NoArgsCommand):
             # ...except for restore which doesn't need to be called again
             options['restore'] = False
             try:
-                shutil.rmtree(os.path.join(django_settings.MEDIA_ROOT, 'media-helper'))
+                shutil.rmtree(
+                    os.path.join(django_settings.MEDIA_ROOT, 'media-helper'))
                 if options['verbosity'] > '0':
                     self.stdout.write('All resized images deleted.')
             except OSError:
                 self.stdout.write("Media-helper directory doesn't exist.")
 
-        if options['restore'] or options['resize-originals'] or options['resize-all']:
-            self.traverse_media_root(**options)
-
+        if (options['restore'] or
+            options['resize-originals'] or
+            options['resize-all']):
+                self.traverse_media_root(**options)
 
     def restore(self, original_path, backup_path, **options):
         ''' Copies original.jpg from media-helper to its original location '''
@@ -91,7 +93,8 @@ class Command(NoArgsCommand):
             return True
         else:
             if options['verbosity'] > '1':
-                self.stdout.write("Skipping %s:  No backup found. " % original_path)
+                self.stdout.write(
+                    "Skipping %s:  No backup found. " % original_path)
             return False
 
     def traverse_media_root(self, **options):
@@ -100,7 +103,7 @@ class Command(NoArgsCommand):
         media_root = django_settings.MEDIA_ROOT
 
         if os.path.isdir(media_root):
-            for path, dirs, files in os.walk(media_root, topdown = True):
+            for path, dirs, files in os.walk(media_root, topdown=True):
                 # Exclude media-helper directory
                 if 'media-helper' in dirs:
                     dirs.remove('media-helper')
@@ -110,7 +113,8 @@ class Command(NoArgsCommand):
                     paths = construct_paths(image_path)
 
                     if options['restore']:
-                        if self.restore(image_path, paths['backup_path'], **options):
+                        if self.restore(
+                            image_path, paths['backup_path'], **options):
                             restored += 1
                         else:
                             skipped += 1
@@ -128,8 +132,9 @@ class Command(NoArgsCommand):
                         else:
                             skipped += 1
         else:
-            raise CommandError("Oh, oh.  Something went terribly wrong.  It seems your media root directory"\
-                  "doesn't exist: %s" % django_settings.MEDIA_ROOT)
+            raise CommandError("Oh, oh.  Something went terribly wrong.  It "
+                               "seems your media root directory doesn't exist:"
+                               "%s" % django_settings.MEDIA_ROOT)
 
         if options['verbosity'] > '0':
             self.stdout.write(
@@ -161,7 +166,7 @@ class Command(NoArgsCommand):
             if options['verbosity'] > '0':
                 self.stdout.write("Resizing %s " % image_path)
 
-            for scaling_factor in Settings().sizes:
+            for scaling_factor in settings.sizes:
                 new_size = int(scaling_factor * width)
 
                 if options['verbosity'] > '1':

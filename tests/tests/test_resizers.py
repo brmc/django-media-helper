@@ -1,0 +1,60 @@
+import os
+import shutil
+from django.test import TestCase
+from django.conf import settings as django_settings
+
+from media_helper import settings
+from media_helper.tools.resizers import resize, move_original
+from media_helper.tools.helpers import construct_paths
+
+
+class ResizersTest(TestCase):
+    scaling_factors = {
+            '2': 0.1,
+            '10': 0.5,
+            '20': 1.0
+    }
+    sizes = [2, 10, 20]
+    image_path = "upload/image.jpg"
+
+    def test_resize(self):
+        django_settings.MEDIA_URL = '/test-files/'
+
+        root = django_settings.MEDIA_ROOT = os.path.join(
+            os.getcwd(),
+            'test-files')
+
+        image_path = os.path.join(root, "upload/image.jpg")
+        paths = construct_paths(image_path)
+
+        self.assertTrue(resize(image_path, 30))
+        resized = os.path.join(paths['response_system_path'], '30.jpeg')
+
+        self.assertTrue(os.path.isfile(resized))
+
+        shutil.copy(paths['backup_path'], image_path)
+        shutil.rmtree(paths['media_helper_root'])
+
+    def test_move_original(self):
+        django_settings.MEDIA_URL = '/test-files/'
+
+        root = django_settings.MEDIA_ROOT = os.path.join(
+            os.getcwd(),
+            'test-files')
+
+        image_path = os.path.join(root, "upload/image.jpg")
+        self.assertTrue(isinstance(move_original(image_path), str))
+
+    def test_default_settings(self):
+
+        self.assertTrue(settings.auto)
+        self.assertEqual(
+            settings.sizes,
+            [0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875,
+                0.5625, 0.6, 0.625, 0.65625, 0.75, 0.8, 1.0]
+        )
+
+        self.assertEqual(settings.minimum, 20)
+        self.assertEqual(settings.default, .5)
+        self.assertEqual(settings.quality, 50)
+        self.assertEqual(settings.allowed_encodings, ['jpg', 'jpeg', 'png'])

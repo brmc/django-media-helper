@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings as dj_settings
 
-from .settings import Settings
+from .settings import settings
 from .tools.resizers import resize
 from .tools.helpers import construct_paths, check_encoding
 
@@ -51,17 +51,23 @@ def get_resized_images(images):
             new_images[old_request_path] = old_request_path
             continue
 
-        # image sizes will be rounded
+        # image sizes will be rounded to avoid an inundation of resize requests
         new_size = image[1]
-        round_to = Settings().round_to
+        round_to = settings.round_to
 
         if new_size % round_to != 0:
             new_size += round_to - new_size % round_to
+        if new_size < settings.minimum:
+            new_size = settings.minimum
 
-        # named according to size
+        # images named according to size
         resized_image_name = "%d.%s" % (new_size, encoding)
-        new_request_path = os.path.join(paths['response_path'], resized_image_name)
-        new_image_path = os.path.join(paths['response_system_path'], resized_image_name)
+        new_request_path = os.path.join(
+            paths['response_path'],
+            resized_image_name)
+        new_image_path = os.path.join(
+            paths['response_system_path'],
+            resized_image_name)
 
         if os.path.isfile(new_image_path):
             new_images[old_request_path] = new_request_path
@@ -69,16 +75,17 @@ def get_resized_images(images):
         elif not image[0].startswith(dj_settings.STATIC_URL):
             result = resize(image[0], image[1])
 
-            if result == True: # successful resizing
+            if result is True:                         # successful resizing
                 new_images[old_request_path] = new_request_path
-            elif result == False: # failed.  Low-res used
+            elif result is False:                      # failed.  Low-res used
                 new_images[old_request_path] = old_request_path
-            else:  # requested size was larger than original.  Original returned
+            else:  # requested size was larger than original, use original
                 new_images[old_request_path] = result
 
         else:
             new_images[old_request_path] = old_request_path
     return new_images
+
 
 def check_images(images):
     ''' Validates the data received via ajax
@@ -88,7 +95,8 @@ def check_images(images):
     Then it checks to see if it is a list of (str, int) tuples
 
     Arguments:
-    :param images: a supposed string representation of list of (str, int) tuples
+    :param images: a supposed string representation of list of (str, int)
+    tuples
     :type images: str
     :returns None or a list
     '''
@@ -129,8 +137,8 @@ def resolution(request):
     a new image.  If the image doesn't exist, the master copy of the image will
     be used  to generate a new copy.
 
-    If the new image is larger than the master copy, the path to the master copy
-    will be returned.
+    If the new image is larger than the master copy, the path to the master
+    copy will be returned.
 
     If any thing else goes wrong, the placeholder image will be returned.
 
@@ -139,20 +147,18 @@ def resolution(request):
     '''
     import warnings
     warnings.warn(
-        "The name of this view/URL pair will be changed in future versions. Its name no longer"\
-        "reflects its function.  Please take note.",
-        DeprecationWarning
-        )
+        "The name of this view/URL pair will be changed in future versions. "
+        "Its name no longer reflects its function.  Please take note.",
+        DeprecationWarning)
 
     if request.is_ajax():
-        import os
         from json import dumps
 
         json = {}
         # Get, convert, and check data from client
         images = check_images(request.POST.get('images'))
         if images is not None:
-            new_images = get_resized_images(images )
+            new_images = get_resized_images(images)
             json['images'] = new_images
 
         # same as above...i don't remember why i have these separate, but i
@@ -164,7 +170,6 @@ def resolution(request):
 
         json = dumps(json)
 
-        return HttpResponse(json, content_type = "application/json")
-
+        return HttpResponse(json, content_type="application/json")
     else:
         return HttpResponseForbidden()

@@ -4,11 +4,10 @@ import os
 import warnings
 from PIL import Image
 
-import django
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.db import models
 from django.db.models.signals import post_save, pre_delete
-from media_helper.settings import Settings
+from media_helper import settings
 from .helpers import construct_paths, check_encoding, create_directories
 
 
@@ -35,7 +34,6 @@ def resize(image_path, new_width):
     :type new_width: int
     :returns: True or False
     """
-    from PIL import Image
 
     paths = construct_paths(image_path)
     image_name = paths['image_name']
@@ -51,7 +49,7 @@ def resize(image_path, new_width):
     image = Image.open(paths['backup_path'])
 
     width, height = image.size
-    round_to = Settings().round_to
+    round_to = settings.round_to
 
     # Round up
     if new_width % round_to != 0:
@@ -60,6 +58,8 @@ def resize(image_path, new_width):
     # Don't resize larger than the original size
     if new_width > width:
         return paths['backup_response_path']
+    if new_width < settings.minimum:
+        new_width = settings.minimum
 
     scaling_factor = float(new_width) / float(width)
 
@@ -105,7 +105,6 @@ def move_original(image_path):
 
     try:
         paths = construct_paths(image_path)
-        image = Image.open(image_path)
         encoding = check_encoding(paths['image_name'])
     except IOError:
         return False
@@ -140,8 +139,8 @@ def resize_original(image_path, backup_path):
     If this resizing fails, it will do so silently and use the original
     :returns: True or False, depending on success
     '''
-    default_size = Settings().default
-    default_quality = Settings().quality
+    default_size = settings.default
+    default_quality = settings.quality
     try:
         image = Image.open(backup_path)
     except IOError:
@@ -187,12 +186,10 @@ def resize_on_save(sender, instance, *args, **kwargs):
     """
     from .finders import find_field_attribute
 
-    if not Settings().auto:
+    if not settings.auto:
         return
 
-    default_size = Settings().default
-
-    sizes = Settings().sizes
+    sizes = settings.sizes
 
     # sets full path of image to be opened
     for name in find_field_attribute("name", instance):
@@ -222,7 +219,7 @@ def delete_resized_images(sender, instance, *args, **kwargs):
 
     for name in find_field_attribute("name", instance):
         directory = os.path.join(
-            settings.MEDIA_ROOT,
+            django_settings.MEDIA_ROOT,
             'media-helper',
             getattr(instance, name).name
         )

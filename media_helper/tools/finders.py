@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.db import models
+import warnings
 
 
 def find_models_with_field(field_type):
