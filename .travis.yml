@@ -1,0 +1,8 @@
+language: python
+install:
+  - pip install -r requirements.txt 
+script:
+  - tox
+env:
+  - TOXENV=py2.6
+  - TOXENV=py2.7
