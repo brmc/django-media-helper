@@ -402,6 +402,13 @@ This is the scaling factor for the low-res default/placeholder.
 **default value:** `.5`
 
 
+### `MEDIA_HELPER_MIN`
+
+The minimum allowed size for an image (in pixels).
+
+**default  value:** `20`
+
+
 ### `MEDIA_HELPER_QUALITY`
 
 The quality of the low-res image.
