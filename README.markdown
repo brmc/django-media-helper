@@ -447,22 +447,29 @@ if they source the same image or the display is set to none
 
 ### `MEDIA_HELPER_IMAGE_SELECTORS`
 
-A `string` of jQuery selectors of images to be resized.
+A `string` of jQuery selectors for images to be resized (or ignored).
+
+These can be any valid jQuery selector.  So you can make them as simple or  
+complex as you wish. 
+
+For example, both 'img' and '.container .img:not(nth-child(2))' would work.
+
+This also combines the ALLOWED_ENCODINGS encodings, so the default settings  
+produce:  
+
+`$(img[src$=".jpg"], img[src$=".jpeg"], img[src$=".png"], )`
 
 **default value:** `"img"`
 
-### `MEDIA_HELPER_IMAGE_EXCLUDE`
-
-A `list` of jQuery selectors to be ignored when searching the DOM.
-
-**default value:** None
-
-A `string` of jQuery selectors of images to be resized.
-
-**default value:** `"img"`
 
 ### `MEDIA_HELPER_BACKGROUND_SELECTORS`
 
-A string of jQuery selectors of elements with background-images to be resized.
+Like above, a string of jQuery selectors for elements with background-images  
+to be resized.
+
+These can be any valid jQuery selector.  So you can make them as simple or  
+complex as you wish. 
+
+For example, both 'div' and '.container .img:not(nth-child(2))' would work.
 
 **default value:** `"div"`

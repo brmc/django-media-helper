@@ -48,7 +48,7 @@ def resize(image_path, new_width):
 
     try:
         image = Image.open(paths['backup_path'])
-    except OSError:
+    except (OSError, IOError):
         return paths['backup_response_path']
 
     width, height = image.size

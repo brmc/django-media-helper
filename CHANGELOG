@@ -8,7 +8,7 @@
 note:when accessing the settings, omit the `MEDIA_HELPER_` prefix.  That is  
 simply to avoid namespace conflicts in the main django ecosystem.
 
-* Added explicit include and exclude settings
+* Added explicit include selectors for backgrounds and images.
 
 * CBV implemented
 

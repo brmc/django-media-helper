@@ -79,12 +79,14 @@ $(document).ready(function(){
     ]
     {% endcomment %}
     var images = "[";
-    var image = ""
-    $("{{media_helper.IMAGE_SELECTORS}}").each(function(){
+    var image = "";
+    {% autoescape off %}
+    $("{{MEDIA_HELPER_IMAGE_SELECTORS}}").each(function(){
         image = strip_path($(this)[0].src);
         images += "('" + image + "'," + new_width($(this)) + "), ";
 
     });
+    {% endautoescape %}
 
     images += "]";
     {% comment %}
@@ -97,6 +99,7 @@ $(document).ready(function(){
     backgrounds = "["
     background_list = []
 
+    {% autoescape off %}
     $('{{media_helper.BACKGROUND_SELECTORS}}').each(function(){
         if ($(this).css('background-image') != "none"){
             background = strip_path($(this).css('background-image'));
@@ -105,6 +108,7 @@ $(document).ready(function(){
             background_list.push($(this));
         }
     });
+    {% endautoescape %}
 
     backgrounds += "]"
 
