@@ -49,14 +49,14 @@ class ResizersTest(TestCase):
 
     def test_default_settings(self):
 
-        self.assertTrue(settings.auto)
+        self.assertTrue(settings.AUTO)
         self.assertEqual(
-            settings.sizes,
+            settings.SIZES,
             [0.3, 0.3125, 0.4, 0.426953125, 0.45, 0.5, 0.53125, 0.546875,
                 0.5625, 0.6, 0.625, 0.65625, 0.75, 0.8, 1.0]
         )
 
-        self.assertEqual(settings.minimum, 20)
-        self.assertEqual(settings.default, .5)
-        self.assertEqual(settings.quality, 50)
-        self.assertEqual(settings.allowed_encodings, ['jpg', 'jpeg', 'png'])
+        self.assertEqual(settings.MINIMUM, 20)
+        self.assertEqual(settings.DEFAULT, .5)
+        self.assertEqual(settings.QUALITY, 50)
+        self.assertEqual(settings.ALLOWED_ENCODINGS, ['jpg', 'jpeg', 'png'])

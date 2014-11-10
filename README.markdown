@@ -233,6 +233,13 @@ should be fine.
 which need to remove files.)
 
 
+**3.\** Add `media_helper.tools.context_processors.include_settings` to 
+`TEMPLATE_CONTEXT_PROCESSORS` in settings.py
+
+    TEMPLATE_CONTEXT_PROCESSORS = (
+        ...
+        'media_helper.tools.context_processors.include_settings',
+    )
 
 **3\.** In order to handle the ajax requests, add the following to your root `urls.py`  
 
@@ -436,3 +443,26 @@ should fail gracefully.
 
 3. It doesn't handle javascript image zooming libraries very well, particularly  
 if they source the same image or the display is set to none
+
+
+### `MEDIA_HELPER_IMAGE_SELECTORS`
+
+A `string` of jQuery selectors of images to be resized.
+
+**default value:** `"img"`
+
+### `MEDIA_HELPER_IMAGE_EXCLUDE`
+
+A `list` of jQuery selectors to be ignored when searching the DOM.
+
+**default value:** None
+
+A `string` of jQuery selectors of images to be resized.
+
+**default value:** `"img"`
+
+### `MEDIA_HELPER_BACKGROUND_SELECTORS`
+
+A string of jQuery selectors of elements with background-images to be resized.
+
+**default value:** `"div"`

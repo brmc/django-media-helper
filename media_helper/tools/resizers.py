@@ -52,7 +52,7 @@ def resize(image_path, new_width):
         return paths['backup_response_path']
 
     width, height = image.size
-    round_to = settings.round_to
+    round_to = settings.ROUND_TO
 
     # Round up
     if new_width % round_to != 0:
@@ -61,8 +61,8 @@ def resize(image_path, new_width):
     # Don't resize larger than the original size
     if new_width > width:
         return paths['backup_response_path']
-    if new_width < settings.minimum:
-        new_width = settings.minimum
+    if new_width < settings.MINIMUM:
+        new_width = settings.MINIMUM
 
     scaling_factor = float(new_width) / float(width)
 
@@ -142,8 +142,8 @@ def resize_original(image_path, backup_path):
     If this resizing fails, it will do so silently and use the original
     :returns: True or False, depending on success
     '''
-    default_size = settings.default
-    default_quality = settings.quality
+    default_size = settings.DEFAULT
+    default_quality = settings.QUALITY
     try:
         image = Image.open(backup_path)
     except IOError:
@@ -189,10 +189,10 @@ def resize_on_save(sender, instance, *args, **kwargs):
     """
     from .finders import find_field_attribute
 
-    if not settings.auto:
+    if not settings.AUTO:
         return
 
-    sizes = settings.sizes
+    sizes = settings.SIZES
 
     # sets full path of image to be opened
     for name in find_field_attribute("name", instance):

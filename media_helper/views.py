@@ -53,12 +53,12 @@ def get_resized_images(images):
 
         # image sizes will be rounded to avoid an inundation of resize requests
         new_size = image[1]
-        round_to = settings.round_to
+        round_to = settings.ROUND_TO
 
         if new_size % round_to != 0:
             new_size += round_to - new_size % round_to
-        if new_size < settings.minimum:
-            new_size = settings.minimum
+        if new_size < settings.MINIMUM:
+            new_size = settings.MINIMUM
 
         # images named according to size
         resized_image_name = "%d.%s" % (new_size, encoding)
@@ -122,7 +122,7 @@ def check_images(images):
         return None
 
 
-def resolution(request):
+def media_helper(request):
     ''' Finds or resizes images and returns them via ajax
 
     This is the view that handles the entire resizing and delivery process,
@@ -145,11 +145,6 @@ def resolution(request):
     Finally everything is packed into a json string and shipped back to the
     client.
     '''
-    import warnings
-    warnings.warn(
-        "The name of this view/URL pair will be changed in future versions. "
-        "Its name no longer reflects its function.  Please take note.",
-        DeprecationWarning)
 
     if request.is_ajax():
         from json import dumps
@@ -173,3 +168,15 @@ def resolution(request):
         return HttpResponse(json, content_type="application/json")
     else:
         return HttpResponseForbidden()
+
+
+def resolution(request):
+    import warnings
+
+    warnings.simplefilter("always")
+    warnings.warn(
+        "The name of this view/URL pair will be changed in future versions. "
+        "Its name no longer reflects its function.  Please take note.",
+        DeprecationWarning)
+
+    return media_helper(request)

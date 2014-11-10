@@ -1,5 +1,23 @@
 # Changelog
 
+## v.0.2.1
+
+### New features
+
+* Added a context processor to access media_helper settings in templates.  
+note:when accessing the settings, omit the `MEDIA_HELPER_` prefix.  That is  
+simply to avoid namespace conflicts in the main django ecosystem.
+
+* Added explicit include and exclude settings
+
+* CBV implemented
+
+### Changes
+
+* `resolution` view renamed to `media_helper`
+
+* internal settings converted to uppercase.
+
 ## v.0.1.4.bug-fix
 
 * fixed settings import error

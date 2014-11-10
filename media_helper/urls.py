@@ -1,7 +1,8 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
-from .views import resolution
+from .views import media_helper
 
-urlpatterns = patterns('',
-    url(r'^resolution/', resolution, name = "resolution"),
+urlpatterns = patterns(
+    '',
+    url(r'^resize/', media_helper, name="media_helper"),
 )

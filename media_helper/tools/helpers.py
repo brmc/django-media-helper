@@ -23,7 +23,7 @@ def check_encoding(image_name):
     if encoding.lower() == "jpg":
         encoding = "jpeg"
 
-    if encoding not in settings.allowed_encodings:
+    if encoding not in settings.ALLOWED_ENCODINGS:
         return False
 
     return encoding

@@ -166,7 +166,7 @@ class Command(NoArgsCommand):
             if options['verbosity'] > '0':
                 self.stdout.write("Resizing %s " % image_path)
 
-            for scaling_factor in settings.sizes:
+            for scaling_factor in settings.SIZES:
                 new_size = int(scaling_factor * width)
 
                 if options['verbosity'] > '1':

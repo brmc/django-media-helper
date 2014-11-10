@@ -80,7 +80,7 @@ $(document).ready(function(){
     {% endcomment %}
     var images = "[";
     var image = ""
-    $('img').each(function(){
+    $("{{media_helper.IMAGE_SELECTORS}}").each(function(){
         image = strip_path($(this)[0].src);
         images += "('" + image + "'," + new_width($(this)) + "), ";
 
@@ -97,7 +97,7 @@ $(document).ready(function(){
     backgrounds = "["
     background_list = []
 
-    $('*').each(function(){
+    $('{{media_helper.BACKGROUND_SELECTORS}}').each(function(){
         if ($(this).css('background-image') != "none"){
             background = strip_path($(this).css('background-image'));
             {# the stripping pattern works for the back ground image, but there is a closing parenthesis to consider #}
@@ -110,7 +110,7 @@ $(document).ready(function(){
 
     $.ajax({
         type: "POST",
-        url: '/media-helper/resolution/',
+        url: '{% url "media_helper" %}',
         data: {
             'width' :window.screen.width,
             'height': window.screen.height,
