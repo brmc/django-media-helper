@@ -45,7 +45,22 @@ urlpatterns = patterns('',
 That should be it for default functionality  
 
 
-# Changelog (Recent changes only)  
+## v.0.1.4.bug-fix
+
+* fixed settings import error
+
+* image size of 0 error fixed.  this was done earlier, but i forgot to mention
+it
+
+## v.0.1.4  
+
+### Changes
+
+* tox and travis integration
+
+* added python 3 compatibility
+
+* moved to github 
 
 ## v.0.1.4.a
 
@@ -59,6 +74,7 @@ That should be it for default functionality
 ### General
 
 * Flaked the shit out of everything
+
 
 
 ### v.0.1.3  
