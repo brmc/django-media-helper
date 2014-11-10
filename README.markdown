@@ -44,10 +44,6 @@ urlpatterns = patterns('',
 
 That should be it for default functionality  
 
-**Bug notice: if the image has no dimension defined in the CSS, or if the width  
-is defined simply with a min- or max-width, a size of 0px is sent to the server  
-which produces a somewhat less-than-desirable result :/ I will fix this as soon  
-as I have time, but until then, just be aware of the istuation**
 
 # Changelog (Recent changes only)  
 

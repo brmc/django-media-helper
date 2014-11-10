@@ -4,6 +4,9 @@
 
 * fixed settings import error
 
+* image size of 0 error fixed.  this was done earlier, but i forgot to mention
+it
+
 ## v.0.1.4  
 
 ### Changes
