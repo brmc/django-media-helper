@@ -46,7 +46,10 @@ def resize(image_path, new_width):
         move_original(paths['request_system_path'])
         resize_original(paths['request_system_path'], paths['backup_path'])
 
-    image = Image.open(paths['backup_path'])
+    try:
+        image = Image.open(paths['backup_path'])
+    except OSError:
+        return paths['backup_response_path']
 
     width, height = image.size
     round_to = settings.round_to
@@ -65,8 +68,8 @@ def resize(image_path, new_width):
 
     new_image = image.resize(
         (new_width, int(height * scaling_factor)),
-        Image.ANTIALIAS
-    )
+        Image.ANTIALIAS)
+
     create_directories(paths['media_helper_root'], image_name)
 
     try:

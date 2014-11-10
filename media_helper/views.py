@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings as dj_settings
 
-from .settings import settings
+from media_helper import settings
 from .tools.resizers import resize
 from .tools.helpers import construct_paths, check_encoding
 
