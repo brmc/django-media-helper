@@ -15,7 +15,7 @@ setup(
     version  = '0.2.1.1',
     packages = find_packages(),
     include_package_data=True,
-    requires = ['python (>= 2.5)', 'django (>= 1.6)', 'Pillow (>= 2.1.0)'],
+    requires = ['python (>= 2.7)', 'django (>= 1.6)', 'Pillow (>= 2.1.0)'],
     description  = 'A image resizing and management app for Django',
     long_description = open('README.markdown').read(),
     author       = 'Brian McClure',
