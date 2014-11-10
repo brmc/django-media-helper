@@ -58,6 +58,12 @@ INSTALLED_APPS = (
             ...  
             'media_helper', # should go after all your apps    
         )  
+...
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+        ...
+        'media_helper.tools.context_processors.include_settings',
+    )
 
 ```
 
