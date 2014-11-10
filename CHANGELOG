@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.1.1
+
+* updated Quickstart
+
 ## v.0.2.1
 
 ### New features
@@ -24,6 +28,7 @@ simply to avoid namespace conflicts in the main django ecosystem.
 
 * image size of 0 error fixed.  this was done earlier, but i forgot to mention
 it
+
 
 ## v.0.1.4  
 
