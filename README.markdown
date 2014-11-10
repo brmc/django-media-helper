@@ -1,42 +1,41 @@
 # **django-media-helper** #
 
-[TOC]
+## Contents
 
-django-media-helper
-[Quick start](#quick-start)
-Changelog (Recent changes only)
-v.0.1.4.a
-Changes
-General
-v.0.1.3
-Bug fixes
-v0.1.2
-Bug fixes/corrections
-General Info
-File Cleanup
-Image resizing
-How does it work?
-File Cleanup
-Image Resizing
-Something to consider
-Requirements
-Imaging
-Ajax
-Installation
-Usage
-Management Command: mediahelper
-option: --restore
-option: --resize-all
-option: --resize-originals
-option: --delete
-Configuration
-MEDIA_HELPER_AUTO
-MEDIA_HELPER_SIZES
-MEDIA_HELPER_ROUND_TO
-MEDIA_HELPER_DEFAULT
-MEDIA_HELPER_QUALITY
-MEDIA_HELPER_ALLOWED_ENCODINGS
-What it does not do (...yet?)
+* [Quick start](#quick-start)
+* [Changelog (Recent changes only)](#changelog)
+* * [v.0.2.1](#v021)
+* * [v.0.1.4.bug-fix](#v014bug-fix)
+* * [v.0.1.4  ](#v014)
+* * [v.0.1.4.a](#v014a)
+* [General Info](#general-info)
+* * [File Cleanup](#file-cleanup)
+* * [Image resizing](#image-resizing)
+* [How does it work?](#how-does-it-work)
+* * [File Cleanup](#file-cleanup-1)
+* * [Image Resizing](#image-resizing-1)
+* * [Something to consider](#something-to-consider)
+* [Requirements](#requirements)
+* * [Imaging](#imaging)
+**  [Ajax](#ajax)
+* [Installation](#installation)
+* [Usage](#usage)
+* * [Management Command: mediahelper](#management-command-mediahelper)
+* * [option: --restore](#option---restore)
+* * [option: --resize-all](#option---resize-all)
+* * [option: --resize-originals](#option---resize-originals)
+* * [option: --delete](#option---delete)
+* [Configuration](#configuration)
+* * [MEDIA_HELPER_AUTO](#media_helper_auto)
+* * [MEDIA_HELPER_SIZES](#media_helper_sizes)
+* * [MEDIA_HELPER_ROUND_TO](#media_helper_round_to)
+* * [MEDIA_HELPER_MIN](#media_helper_min)
+* * [MEDIA_HELPER_DEFAULT](#media_helper_default)
+* * [MEDIA_HELPER_QUALITY](#media_helper_quality)
+* * [MEDIA_HELPER_ALLOWED_ENCODINGS](#media_helper_allowed_encodings)
+* * [MEDIA_HELPER_IMAGE_SELECTORS](#media_helper_image_selectors)
+* * [MEDIA_HELPER_BACKGROUND_SELECTORS](#media_helper_background_selectors)
+* [What it does not do (...yet?)](#what-it-does-not-do-yet)
 
 
 ## Quick start ##
@@ -81,16 +80,36 @@ urlpatterns = patterns('',
 That should be it for default functionality  
 
 
-## v.0.1.4.bug-fix
+## Changelog
+
+### v.0.2.1
+
+#### New features
+
+* Added a context processor to access media_helper settings in templates.  
+note:when accessing the settings, omit the `MEDIA_HELPER_` prefix.  That is  
+simply to avoid namespace conflicts in the main django ecosystem.
+
+* Added explicit include selectors for backgrounds and images.
+
+* CBV implemented
+
+#### Changes
+
+* `resolution` view renamed to `media_helper`
+
+* internal settings converted to uppercase.
+
+### v.0.1.4.bug-fix
 
 * fixed settings import error
 
 * image size of 0 error fixed.  this was done earlier, but i forgot to mention
 it
 
-## v.0.1.4  
+### v.0.1.4  
 
-### Changes
+#### Changes
 
 * tox and travis integration
 
@@ -98,35 +117,19 @@ it
 
 * moved to github 
 
-## v.0.1.4.a
+### v.0.1.4.a
 
-### Changes
+
+#### Changes
 
 * settings module made less stupid.
 
 * tests divded into separate files
 
 
-### General
+#### General
 
 * Flaked the shit out of everything
-
-
-
-### v.0.1.3  
-
-#### Bug fixes  
-
-* Fixed premature loop exit in `management.commands.mediahelper.resize-all`  
-causing it to only generate 1 scaled image.  Now it should work properly.
-
-### v0.1.2  
-
-#### Bug fixes/corrections   
-
-* Templates were not included in the pypi package  
-
-* Typo in the documentation preventing proper template usage  
 
 
 
