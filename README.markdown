@@ -3,7 +3,7 @@
 [TOC]
 
 django-media-helper
-[Quick start](#Quick Start)
+[Quick start](#quick-start)
 Changelog (Recent changes only)
 v.0.1.4.a
 Changes
