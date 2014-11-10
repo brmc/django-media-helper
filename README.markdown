@@ -2,6 +2,42 @@
 
 [TOC]
 
+django-media-helper
+[Quick start](#Quick Start)
+Changelog (Recent changes only)
+v.0.1.4.a
+Changes
+General
+v.0.1.3
+Bug fixes
+v0.1.2
+Bug fixes/corrections
+General Info
+File Cleanup
+Image resizing
+How does it work?
+File Cleanup
+Image Resizing
+Something to consider
+Requirements
+Imaging
+Ajax
+Installation
+Usage
+Management Command: mediahelper
+option: --restore
+option: --resize-all
+option: --resize-originals
+option: --delete
+Configuration
+MEDIA_HELPER_AUTO
+MEDIA_HELPER_SIZES
+MEDIA_HELPER_ROUND_TO
+MEDIA_HELPER_DEFAULT
+MEDIA_HELPER_QUALITY
+MEDIA_HELPER_ALLOWED_ENCODINGS
+What it does not do (...yet?)
+
 
 ## Quick start ##
 
