@@ -92,8 +92,6 @@ simply to avoid namespace conflicts in the main django ecosystem.
 
 * Added explicit include selectors for backgrounds and images.
 
-* CBV implemented
-
 #### Changes
 
 * `resolution` view renamed to `media_helper`
@@ -474,15 +472,6 @@ should fail gracefully.
 
 **default values:** `['jpg', 'jpeg', 'png']`
 
-## What it does **not** do (...yet?) ##
-
-1. It does not scale up.  It only shrinks images.  
-
-2. It doesn't resize images found under STATIC_URL
-
-3. It doesn't handle javascript image zooming libraries very well, particularly  
-if they source the same image or the display is set to none
-
 
 ### `MEDIA_HELPER_IMAGE_SELECTORS`
 
@@ -512,3 +501,13 @@ complex as you wish.
 For example, both 'div' and '.container .img:not(nth-child(2))' would work.
 
 **default value:** `"div"`
+
+
+## What it does **not** do (...yet?) ##
+
+1. It does not scale up.  It only shrinks images.  
+
+2. It doesn't resize images found under STATIC_URL
+
+3. It doesn't handle javascript image zooming libraries very well, particularly  
+if they source the same image or the display is set to none

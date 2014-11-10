@@ -1,13 +1,53 @@
 # **django-media-helper** #
 
-[TOC]
+## Contents
+
+* [Quick start](#quick-start)
+* [Changelog (Recent changes only)](#changelog)
+  * [v.0.2.1](#v021)
+  * [v.0.1.4.bug-fix](#v014bug-fix)
+  * [v.0.1.4  ](#v014)
+  * [v.0.1.4.a](#v014a)
+* [General Info](#general-info)
+  * [File Cleanup](#file-cleanup)
+  * [Image resizing](#image-resizing)
+* [How does it work?](#how-does-it-work)
+  * [File Cleanup](#file-cleanup-1)
+  * [Image Resizing](#image-resizing-1)
+  * [Something to consider](#something-to-consider)
+* [Requirements](#requirements)
+  * [Imaging](#imaging)
+  * [Ajax](#ajax)
+* [Installation](#installation)
+* [Usage](#usage)
+  * [Management Command: mediahelper](#management-command-mediahelper)
+  * [option: --restore](#option---restore)
+  * [option: --resize-all](#option---resize-all)
+  * [option: --resize-originals](#option---resize-originals)
+  * [option: --delete](#option---delete)
+* [Configuration](#configuration)
+  * [MEDIA_HELPER_AUTO](#media_helper_auto)
+  * [MEDIA_HELPER_SIZES](#media_helper_sizes)
+  * [MEDIA_HELPER_ROUND_TO](#media_helper_round_to)
+  * [MEDIA_HELPER_MIN](#media_helper_min)
+  * [MEDIA_HELPER_DEFAULT](#media_helper_default)
+  * [MEDIA_HELPER_QUALITY](#media_helper_quality)
+  * [MEDIA_HELPER_ALLOWED_ENCODINGS](#media_helper_allowed_encodings)
+  * [MEDIA_HELPER_IMAGE_SELECTORS](#media_helper_image_selectors)
+  * [MEDIA_HELPER_BACKGROUND_SELECTORS](#media_helper_background_selectors)
+* [What it does not do (...yet?)](#what-it-does-not-do-yet)
 
 
 ## Quick start ##
 
+i\. **Requirements**
+
+1. Jquery
+2. Pillow
+
 1\. **Installation**
 
-    pip install git+https://bitbucket.org/brmcllr/django_media_helper.git      
+    pip install django-media-helper     
 
 2\. **settings.py:**  
      
@@ -35,9 +75,60 @@ urlpatterns = patterns('',
 3\. **Templates:**
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>  
-    {% include 'media-helper/ajax.html' %}
+    {% include 'media_helper/ajax.html' %}
 
 That should be it for default functionality  
+
+
+## Changelog
+
+### v.0.2.1
+
+#### New features
+
+* Added a context processor to access media_helper settings in templates.  
+note:when accessing the settings, omit the `MEDIA_HELPER_` prefix.  That is  
+simply to avoid namespace conflicts in the main django ecosystem.
+
+* Added explicit include selectors for backgrounds and images.
+
+#### Changes
+
+* `resolution` view renamed to `media_helper`
+
+* internal settings converted to uppercase.
+
+### v.0.1.4.bug-fix
+
+* fixed settings import error
+
+* image size of 0 error fixed.  this was done earlier, but i forgot to mention
+it
+
+### v.0.1.4  
+
+#### Changes
+
+* tox and travis integration
+
+* added python 3 compatibility
+
+* moved to github 
+
+### v.0.1.4.a
+
+
+#### Changes
+
+* settings module made less stupid.
+
+* tests divded into separate files
+
+
+#### General
+
+* Flaked the shit out of everything
+
 
 
 ## General Info ##
@@ -102,6 +193,12 @@ won't be lost in case the user **does** maximize the window. **This assumes
 you're using a responsive design with images whose sizes are not statically  
 defined.  In the near future I will accomodate for for alternate scenarios**
 
+**One person was under the impression that 3 requests were made per image  
+(initial request, ajax, and the request for resized image), but that is not  
+the case.  Well, it is true if there is only one image per page, but all  
+ajax requests are bundled together, so the average number of requests  
+approaches 2 as the number of images increases.**
+
 
 ### Something to consider ###
 
@@ -158,7 +255,7 @@ should be fine.
 
 **1\.** Install media_helper:  
     
-    pip install git+https://bitbucket.org/brmcllr/django_media_helper.git  
+    pip install django-media-helper
 
 
 
@@ -173,6 +270,13 @@ should be fine.
 which need to remove files.)
 
 
+**3.\** Add `media_helper.tools.context_processors.include_settings` to 
+`TEMPLATE_CONTEXT_PROCESSORS` in settings.py
+
+    TEMPLATE_CONTEXT_PROCESSORS = (
+        ...
+        'media_helper.tools.context_processors.include_settings',
+    )
 
 **3\.** In order to handle the ajax requests, add the following to your root `urls.py`  
 
@@ -190,7 +294,7 @@ so include the following template somewhere *after* jquery, like so:
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>  
     ...
-    {% include 'media-helper/ajax.html' %}  
+    {% include 'media_helper/ajax.html' %}  
 
 (This is safe to use inside django-compressor `compress` tags)
 
@@ -211,16 +315,20 @@ be broken,  here are some management commands that might be useful.
 
 ### Management Command: `mediahelper` ###
 
+**note: there aren't any tests written for these commands yet.  Use them at 
+your own risk.  I've used them on three small sites in production without 
+problem.** 
+
 This command is used to retrofit the media_helper app into a project that  
 already exists. With it you can resize all images found in the MEDIA_ROOT  
 directory, resize/adjust the quality of the placeholder image, delete all  
 resized images, and/or restore images to their original size, quality and  
 location.  If all command options are used simultaneously, they will be  
-processed in the following order:
-   --restore   
-   --delete
-   --resize-originals
-   --resize-all
+processed in the following order:  
+   --restore    
+   --delete  
+   --resize-originals  
+   --resize-all  
 
 And note that whenever --delete is passed, --restore will be forced so you  
 don't risk losing your original images.  
@@ -338,6 +446,13 @@ This is the scaling factor for the low-res default/placeholder.
 **default value:** `.5`
 
 
+### `MEDIA_HELPER_MIN`
+
+The minimum allowed size for an image (in pixels).
+
+**default  value:** `20`
+
+
 ### `MEDIA_HELPER_QUALITY`
 
 The quality of the low-res image.
@@ -356,6 +471,37 @@ intelligently.  It's simply a string comparison, but in case of errors, it
 should fail gracefully.
 
 **default values:** `['jpg', 'jpeg', 'png']`
+
+
+### `MEDIA_HELPER_IMAGE_SELECTORS`
+
+A `string` of jQuery selectors for images to be resized (or ignored).
+
+These can be any valid jQuery selector.  So you can make them as simple or  
+complex as you wish. 
+
+For example, both 'img' and '.container .img:not(nth-child(2))' would work.
+
+This also combines the ALLOWED_ENCODINGS encodings, so the default settings  
+produce:  
+
+`$(img[src$=".jpg"], img[src$=".jpeg"], img[src$=".png"], )`
+
+**default value:** `"img"`
+
+
+### `MEDIA_HELPER_BACKGROUND_SELECTORS`
+
+Like above, a string of jQuery selectors for elements with background-images  
+to be resized.
+
+These can be any valid jQuery selector.  So you can make them as simple or  
+complex as you wish. 
+
+For example, both 'div' and '.container .img:not(nth-child(2))' would work.
+
+**default value:** `"div"`
+
 
 ## What it does **not** do (...yet?) ##
 

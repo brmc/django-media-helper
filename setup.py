@@ -20,8 +20,8 @@ setup(
     long_description = open('README.markdown').read(),
     author       = 'Brian McClure',
     author_email = 'brian.mcclr@gmail.com',
-    url          = 'https://bitbucket.org/brmcllr/django-media-helper',
-    download_url = 'https://bitbucket.org/brmcllr/django-media-helper.git',
+    url          = 'https://github.com/brmc/django-media-helper',
+    download_url = 'https://github.com/brmc/django-media-helper.git',
     license      = 'MIT License',
     keywords     = 'django, imaging, ajax',
     classifiers  = [
