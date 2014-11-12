@@ -1,17 +1,29 @@
-**warning: re-sizing fails in firefox.  [see issue 1](https://github.com/brmc/django-media-helper/issues/1)**  
-**update: nothing works.  don't use this garbage.  i broke everything on the most recent updates**  
-**update 2: check the bug-fixes branch...things seem to be okish.  I still wouldn't trust it though**
+**Update: things seem to be less broken.  Sorry about that**
 
 # **django-media-helper** #
+
+When dealing with content from unacquainted sources(e.g., clients or designers)  
+one often gets images with absurd dimensions and/or filesizes: A 3000px-wide  
+play-button, a 10MB logo, etc.  Media-helper attempts to mitigate this problem  
+by automating image-resizing, delivering the most appropriately sized image to
+the browser. 
+
+It is also designed to be dropped into existing projects with minimal effort.  
+It's still in the alpha stage, but if you're careful it might make your life a 
+little bit easier while also speeding up your load times and reducing data  
+transfer.  
 
 ## Contents
 
 * [Quick start](#quick-start)
 * [Changelog (Recent changes only)](#changelog)
-  * [v.0.2.1](#v021)
-  * [v.0.1.4.bug-fix](#v014bug-fix)
-  * [v.0.1.4  ](#v014)
-  * [v.0.1.4.a](#v014a)
+  * [v0.2.2-bugfix](#v022-bugfix)
+  * [v0.2.2](#v022)  
+  * [v0.2.1.1](#v0211)  
+  * [v0.2.1](#v021)
+  * [v0.1.4.bug-fix](#v014bug-fix)
+  * [v0.1.4  ](#v014)
+  * [v0.1.4.a](#v014a)
 * [General Info](#general-info)
   * [File Cleanup](#file-cleanup)
   * [Image resizing](#image-resizing)
@@ -34,6 +46,7 @@
   * [MEDIA_HELPER_SIZES](#media_helper_sizes)
   * [MEDIA_HELPER_ROUND_TO](#media_helper_round_to)
   * [MEDIA_HELPER_MIN](#media_helper_min)
+  * [MEDIA_HELPER_DEFAULT_FOLDER](#media_helper_default_folder)  
   * [MEDIA_HELPER_DEFAULT](#media_helper_default)
   * [MEDIA_HELPER_QUALITY](#media_helper_quality)
   * [MEDIA_HELPER_ALLOWED_ENCODINGS](#media_helper_allowed_encodings)
@@ -92,6 +105,26 @@ That should be it for default functionality
 
 ## Changelog
 
+### v0.2.2-bugfix
+
+* Fixed firefox issues.  Now correctly removes host name from background-images
+
+* Changed tests to work with and without tox
+
+* Updated tests to reflect new default settings
+
+* Fixed ajax success callbacks to use selectors defined in settings
+
+* Updated readme
+
+### v0.2.2
+
+* fixed travis.yml
+
+### v0.2.1.1
+
+* updated Quickstart
+
 ### v.0.2.1
 
 #### New features
@@ -143,11 +176,17 @@ it
 
 ## General Info ##
 
-This is a simple drop-in app that automates file deletion and image resizing.  
-It should make your life a little bit easier while also speeding up your load   
-times and reducing data transfer.  
+When dealing with content from unacquainted sources(e.g., clients or designers)  
+one often gets images with absurd dimensions and/or filesizes: A 3000px-wide  
+play-button, a 10MB logo, etc.  Media-helper attempts to mitigate this problem  
+by automating image-resizing, delivering the most appropriately sized image to
+the browser. 
 
-It's basically broken into two parts.
+It is also designed to be dropped into existing projects with minimal effort.  
+It's still in the alpha stage, but if you're careful it might make your life a 
+little bit easier while also speeding up your load times and reducing data transfer.  
+
+It's basically broken into two parts....
 
 
 ### File Cleanup ###
@@ -165,7 +204,7 @@ From the django-cleanup docs:
     Most django projects I've seen don't use transactions and this app is   
     designed for such projects.
 
-Full info here: https://github.com/un1t/django-cleanup
+[django-cleanup repo here](https://github.com/un1t/django-cleanup)
 
 
 ### Image resizing ###
@@ -183,18 +222,12 @@ is listed in INSTALLED_APPS above 'media_helper'.
 
 
 ### Image Resizing ###
-When you save an image, a couple things happen:  
 
-1. The original image is copied to a new location and kept safe   
-2. Several resized images will be initially generated (Info below)   
-3. A default, low-res image will be also be created   
-
-Images are also generated on the fly. 
-
-When a user visits your domain, the low-res copy of each image will be used   
-while the correctly sized images are being retrieved via AJAX calls.  If no   
-image already exists, a new one will be re-sized. (this includes css   
-background-images as well but not list-item-images).  If something goes wrong,  
+When a user visits your domain, the low-res copy of each image will be initially  
+delivered to the browser. jQuery will then determine the rendered size of all
+elements containing an image or background-image, bundle all these images their
+respective dimensions, and send them to the server via an AJAX request. If no   
+image already exists, a new one will be generated. If something goes wrong,  
 the low-res image will remain in place.  
 
 The size of the image will be determined by the html element's rendered size,  
@@ -203,11 +236,27 @@ won't be lost in case the user **does** maximize the window. **This assumes
 you're using a responsive design with images whose sizes are not statically  
 defined.  In the near future I will accomodate for for alternate scenarios**
 
+So for those of you who prefer lists, here's what's going on:
+
+1. Deliver low-res images with initial http request  
+2. Measure all elements containing image or background-image  
+3. Send list of images, bundled with their sizes, via AJAX back to server  
+4. Search for existing image with correct dimensions or create aa new one.
+  * note: To avoid an inundation of images being re-sized, dimensions will be  
+    rounded to a certain value. [see Configuration](#media_helper_round_to)
+
 **One person was under the impression that 3 requests were made per image  
-(initial request, ajax, and the request for resized image), but that is not  
-the case.  Well, it is true if there is only one image per page, but all  
-ajax requests are bundled together, so the average number of requests  
+(initial request, ajax, and the request for resized image), so to clarify,  
+that is not the case.  Well, it is true if there is only one image per page,  
+but all ajax requests are bundled together, so the number of requests per image
 approaches 2 as the number of images increases.**
+
+
+When you save an image, a couple things happen:  
+
+1. The original image is copied to a new location and kept safe   
+2. Several resized images will be initially generated (Info below)   
+3. A default, low-res image will be also be created   
 
 
 ### Something to consider ###
@@ -256,7 +305,11 @@ And don't worry, Pillow pisses everyone off at some point.
 
 Unless you plan to write the client-side AJAX requests yourself, you're going  
 to need jQuery.  It's pretty basic stuff, so any reasonably recent version   
-should be fine.
+should be fine.  I haven't observed any conflict with jQuery 2.x, but 
+considering that the goal of this app is to accomodate for people who--with 
+no disrespect intended--don't know any better, sticking with jQuery 1.x might 
+be a better idea for the IE support.
+
 
 `<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>`  
 
@@ -306,7 +359,8 @@ so include the following template somewhere *after* jquery, like so:
     ...
     {% include 'media_helper/ajax.html' %}  
 
-(This is safe to use inside django-compressor `compress` tags)
+This is safe to use inside django-compressor `compress` tags.  In fact, it's
+recommended.
 
 And I write JS like a neanderthal, so feel free to write your own AJAX. I don't    
 know if I'll get into the specifics in this version, but what I'm doing is     
@@ -453,7 +507,7 @@ account for slight variations in browsers.
 
 This is the scaling factor for the low-res default/placeholder.
 
-**default value:** `.5`
+**default value:** `.1`
 
 
 ### `MEDIA_HELPER_MIN`
@@ -461,6 +515,13 @@ This is the scaling factor for the low-res default/placeholder.
 The minimum allowed size for an image (in pixels).
 
 **default  value:** `20`
+
+
+### `MEDIA_HELPER_DEFAULT_FOLDER`
+
+The folder under which images will be saved
+
+**default value:** `'media-helper'`
 
 
 ### `MEDIA_HELPER_QUALITY`

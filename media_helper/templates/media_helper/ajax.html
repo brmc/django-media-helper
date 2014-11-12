@@ -51,6 +51,7 @@ $(document).ready(function(){
 
     function strip_path(path, position){
         {# this makes certain assumptions about the URI structure #}
+        {# it attempts to strip everything but the upload dir and the filename #}
         strip = [      
             'url(',
             window.location.protocol + "//" + window.location.host,
@@ -64,7 +65,7 @@ $(document).ready(function(){
         $.each(strip, function(){
             path = path.replace(this, "");
         })
-        return path
+        return path;
         
     }
     function new_width(element){
@@ -83,6 +84,7 @@ $(document).ready(function(){
     var images = "[";
     var image = "";
     {% autoescape off %}
+
     $("{{SELECTORS}}").each(function(){
         image = strip_path($(this)[0].src);
         images += "('" + image + "'," + new_width($(this)) + "), ";
