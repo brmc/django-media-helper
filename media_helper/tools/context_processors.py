@@ -7,15 +7,14 @@ def include_settings(request):
 
     encodings = settings.ALLOWED_ENCODINGS
     img_selectors = settings.IMAGE_SELECTORS.split(",")
-    bkg_selectors = settings.BACKGROUND_SELECTORS
+
     i_selectors = []
 
     for encoding in encodings:
         for selector in img_selectors:
-            i_selectors.append("{0}[src$='.{1}']".format(selector, encoding.decode('utf8')))
-
+            i_selectors.append("{0}[src$='.{1}']".format(selector, encoding))
 
     return {
         'media_helper': settings,
-        'selectors': ", ".join(i_selectors)
+        'SELECTORS': ", ".join(i_selectors)
     }

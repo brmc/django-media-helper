@@ -53,10 +53,13 @@ $(document).ready(function(){
         {# this makes certain assumptions about the URI structure #}
         strip = [      
             'url(',
-            window.location.origin,
+            window.location.protocol + "//" + window.location.host,
             ')',
+            '1.1.1.1/bmi',
             '{{ MEDIA_URL }}',
-            '//'
+            '//',
+            '"',
+            '"'
         ]
         $.each(strip, function(){
             path = path.replace(this, "");
@@ -65,7 +68,6 @@ $(document).ready(function(){
         
     }
     function new_width(element){
-
         return parseInt(element.width() * window.screen.width/$(window).width());
     }
 
@@ -81,7 +83,7 @@ $(document).ready(function(){
     var images = "[";
     var image = "";
     {% autoescape off %}
-    $("{{MEDIA_HELPER_IMAGE_SELECTORS}}").each(function(){
+    $("{{SELECTORS}}").each(function(){
         image = strip_path($(this)[0].src);
         images += "('" + image + "'," + new_width($(this)) + "), ";
 
@@ -89,6 +91,7 @@ $(document).ready(function(){
     {% endautoescape %}
 
     images += "]";
+
     {% comment %}
         A similar method as above, but because browsers return the background-image path differently, a few modifications 
         must be made.
@@ -96,11 +99,12 @@ $(document).ready(function(){
         Ulimately a similar string will be created.
 
     {% endcomment %}
-    backgrounds = "["
-    background_list = []
+    backgrounds = "[";
+    background_list = [];
 
     {% autoescape off %}
     $('{{media_helper.BACKGROUND_SELECTORS}}').each(function(){
+        
         if ($(this).css('background-image') != "none"){
             background = strip_path($(this).css('background-image'));
             {# the stripping pattern works for the back ground image, but there is a closing parenthesis to consider #}
@@ -108,9 +112,8 @@ $(document).ready(function(){
             background_list.push($(this));
         }
     });
-    {% endautoescape %}
 
-    backgrounds += "]"
+    backgrounds += "]";
 
     $.ajax({
         type: "POST",
@@ -122,7 +125,7 @@ $(document).ready(function(){
             'backgrounds': backgrounds
         },
         success: function(data){
-            $('img').each(function(){
+            $("{{SELECTORS}}").each(function(){
                 {# for each image, search the returned dict for a new request path #}
                 {% comment %}
                     Just a reminder what is sent to the server and what is returned
@@ -147,6 +150,7 @@ $(document).ready(function(){
         }
         
     });
+    {% endautoescape %}
 });
 
 </script>

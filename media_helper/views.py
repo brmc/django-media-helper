@@ -84,6 +84,7 @@ def get_resized_images(images):
 
         else:
             new_images[old_request_path] = old_request_path
+
     return new_images
 
 

@@ -3,7 +3,7 @@
 
 from django.conf import settings
 
-DEFAULT = getattr(settings, "MEDIA_HELPER_DEFAULT", .5)
+DEFAULT = getattr(settings, "MEDIA_HELPER_DEFAULT", .1)
 QUALITY = getattr(settings, "MEDIA_HELPER_QUALITY", 50)
 AUTO = getattr(settings, "MEDIA_HELPER_AUTO", True)
 MINIMUM = getattr(settings, "MEDIA_HELPER_MIN", 20)
