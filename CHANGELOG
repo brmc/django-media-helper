@@ -30,7 +30,6 @@ simply to avoid namespace conflicts in the main django ecosystem.
 
 * Added explicit include selectors for backgrounds and images.
 
-* CBV implemented
 
 ### Changes
 
