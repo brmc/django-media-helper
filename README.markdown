@@ -1,4 +1,5 @@
 **warning: re-sizing fails in firefox.  [see issue 1](https://github.com/brmc/django-media-helper/issues/1)**
+**update: nothing works.  don't use this garbage.  i broke everything on the most recent updates **
 
 # **django-media-helper** #
 
