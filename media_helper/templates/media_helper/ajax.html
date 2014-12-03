@@ -141,12 +141,21 @@ $(document).ready(function(){
                         'MEDIA_URL/<upload_to>/filename.ext': 'MEDIA_URL/<upload_to>/<size>/filename.ext'
                     }
                 {% endcomment %}
-
-                $(this).attr('src', data['images']["{{MEDIA_URL}}" + strip_path($(this)[0].src)]);
+                var img = this;
+                var i = new Image();
+                i.onload = function(){
+                    $(img).attr('src', this.src);
+                }
+                i.src = data['images']["{{MEDIA_URL}}" + strip_path($(this)[0].src)];
             });
             $.each(background_list, function(){
                 url = $(this).css('background-image').split("(")[1].split(")")[0];
-                $(this).css('background-image', 'url("' + data['backgrounds']["{{MEDIA_URL}}" + strip_path(url)] + '")');
+                var img = this;
+                var i = new Image();
+                i.onload = function(){
+                    $(img).css('background-image', 'url("' + this.src+ '")');
+                }
+                i.src = data['backgrounds']["{{MEDIA_URL}}" + strip_path(url)];
 
             });
         }

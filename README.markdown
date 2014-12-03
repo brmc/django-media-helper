@@ -105,6 +105,12 @@ That should be it for default functionality
 
 ## Changelog
 
+### v0.3
+
+#### New Features
+
+* Added crude preloading for images and backgrounds
+
 ### v0.2.2-bugfix
 
 * Fixed firefox issues.  Now correctly removes host name from background-images
