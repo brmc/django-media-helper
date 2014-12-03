@@ -116,7 +116,26 @@ $(document).ready(function(){
     });
 
     backgrounds += "]";
+    function swap_image(img, new_path){
+        {# for each image, search the returned dict for a new request path #}
+                {% comment %}
+                    Just a reminder what is sent to the server and what is returned
+                    sent:
+                    [
+                        (<upload_to>/<filename.ext>, <new size>),
+                    ]
 
+                    returned:
+                    {
+                        'MEDIA_URL/<upload_to>/filename.ext': 'MEDIA_URL/<upload_to>/<size>/filename.ext'
+                    }
+                {% endcomment %}
+                var i = new Image();
+                i.onload = function(){
+                    $(img).attr('src', this.src);
+                }
+                i.src = new_path;
+    }
     $.ajax({
         type: "POST",
         url: '{% url "media_helper" %}',
@@ -127,13 +146,16 @@ $(document).ready(function(){
             'backgrounds': backgrounds
         },
         success: function(data){
+            $.each(data['images'], function(){
+                alert(this);
+            });
             $("{{SELECTORS}}").each(function(){
                 {# for each image, search the returned dict for a new request path #}
                 {% comment %}
                     Just a reminder what is sent to the server and what is returned
                     sent:
-                    [ 
-                        (<upload_to>/<filename.ext>, <new size>), 
+                    [
+                        (<upload_to>/<filename.ext>, <new size>),
                     ]
 
                     returned:
@@ -141,12 +163,10 @@ $(document).ready(function(){
                         'MEDIA_URL/<upload_to>/filename.ext': 'MEDIA_URL/<upload_to>/<size>/filename.ext'
                     }
                 {% endcomment %}
-                var img = this;
-                var i = new Image();
-                i.onload = function(){
-                    $(img).attr('src', this.src);
-                }
-                i.src = data['images']["{{MEDIA_URL}}" + strip_path($(this)[0].src)];
+
+                new_path = data['images']["{{MEDIA_URL}}" + strip_path($(this)[0].src)];
+                swap_image(this, new_path);
+
             });
             $.each(background_list, function(){
                 url = $(this).css('background-image').split("(")[1].split(")")[0];
@@ -158,6 +178,9 @@ $(document).ready(function(){
                 i.src = data['backgrounds']["{{MEDIA_URL}}" + strip_path(url)];
 
             });
+        },
+        complete: function(data){
+            alert(1);
         }
         
     });
