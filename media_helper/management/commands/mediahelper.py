@@ -109,7 +109,8 @@ class Command(NoArgsCommand):
                     dirs.remove('media-helper')
                 dirs[:] = [d for d in dirs if d is not 'media-helper']
                 for file in files:
-                    image_path = os.path.join(path, file)
+                    image_path = os.path.join(
+                        path.decode('utf-8'), file.decode('utf-8'))
                     paths = construct_paths(image_path)
 
                     if options['restore']:
