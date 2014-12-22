@@ -160,9 +160,11 @@ def media_helper(request):
         # same as above...i don't remember why i have these separate, but i
         # know I had a reason at some point.
         backgrounds = check_images(request.POST.get('backgrounds'))
+
         if backgrounds is not None:
             new_backgrounds = get_resized_images(backgrounds)
             json['backgrounds'] = new_backgrounds
+            print "backgrounds", new_backgrounds
 
         json = dumps(json)
 

@@ -109,7 +109,21 @@ That should be it for default functionality
 
 #### New Features
 
-* Added crude preloading for images and backgrounds
+* Images and backgrounds will now be preloaded before being replaced
+
+* Created the following jQuery plugins for resizing and replacing images and  
+backgrounds to allow more granular control: 
+    swapImage(), 
+    swapBackground(),
+    replaceAll()
+
+### Changes
+
+* `strip_path` in in `ajax.html` was converted to a regex.
+
+#### Bug Fixes
+
+* Fixed unicode decode error in management.commands.mediahelper
 
 #### Bug fixes
 
