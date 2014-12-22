@@ -111,6 +111,15 @@ That should be it for default functionality
 
 * Added crude preloading for images and backgrounds
 
+#### Bug fixes
+
+* Changed resize quality from 85 to 'keep' because resized jpegs were often
+  larger than their source files.
+
+#### MISC
+
+* Finally wrote a regex for url stripping
+
 ### v0.2.2-bugfix
 
 * Fixed firefox issues.  Now correctly removes host name from background-images
