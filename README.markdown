@@ -1,5 +1,3 @@
-**Update: things seem to be less broken.  Sorry about that**
-
 # **django-media-helper** #
 
 When dealing with content from unacquainted sources(e.g., clients or designers)  
@@ -16,7 +14,7 @@ transfer.
 ## Contents
 
 * [Quick start](#quick-start)
-* [Changelog (Recent changes only)](#changelog)
+* [Changelog (Recent changes only)](#changelog-recent-changes)
   * [v0.3](#v03)
   * [v0.2.2-bugfix](#v022-bugfix)
   * [v0.2.2](#v022)  
@@ -117,10 +115,11 @@ That should be it for default functionality
 flickering
 
 * Created the following jQuery plugins for resizing and replacing images and  
-backgrounds to allow more granular control: 
-    swapImage(), 
-    swapBackground(),
-    replaceAll()
+backgrounds to allow more granular control:  
+    swapImage(),  
+    swapBackground(),  
+    replaceAll()  
+    Docs still need to be written for these though.  
 
 #### Bug Fixes
 
