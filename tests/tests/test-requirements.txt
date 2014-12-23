@@ -1,2 +1,1 @@
-Django>=1.6
 Pillow>=2.1.0

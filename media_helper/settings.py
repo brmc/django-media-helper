@@ -8,6 +8,9 @@ QUALITY = getattr(settings, "MEDIA_HELPER_QUALITY", 50)  # Pillow quality kwarg
 AUTO = getattr(settings, "MEDIA_HELPER_AUTO", True)      # Re-size on save
 MINIMUM = getattr(settings, "MEDIA_HELPER_MIN", 20)      # Smallest image
 ROUND_TO = getattr(settings, "MEDIA_HELPER_ROUND_TO", 10)  # nearest pixel
+GENERATE_STATIC = getattr(settings, "MEDIA_HELPER_GENERATE_STATIC", True)
+STATIC_SIZE = getattr(settings, "MEDIA_HELPER_STATIC_SIZE", 1366)
+STATIC_NAME = getattr(settings, "MEDIA_HELPER_STATIC_NAME", 'static')
 
 # jQuery selectors for img elements
 IMAGE_SELECTORS = getattr(settings, "MEDIA_HELPER_IMAGE_SELECTORS", "img")

@@ -10,18 +10,46 @@ from media_helper import settings
 
 class Command(NoArgsCommand):
     help = 'This command is used to retrofit the media_helper app into a ' \
-    'project that already exists. With it you can resize all images found ' \
-    'in the MEDIA_ROOT directory, resize/adjust the quality of the ' \
-    'placeholder image, delete all resized images, and/or restore images ' \
-    'to their original size, quality and location.  If all command options ' \
-    'are used simultaneously, they will be processed in the following ' \
+    'project that \nalready exists. With it you can resize all images found ' \
+    'in the MEDIA_ROOT \ndirectory, resize/adjust the quality of the ' \
+    'placeholder image, delete all \nresized images, and/or restore images ' \
+    'to their original size, quality and \nlo' \
+    'cation.  If all command options '\
+    'are used simultaneously, they will be \nprocessed in the following ' \
     'order:\n   --restore\n   --delete\n   --resize-originals\n' \
     '   --resize-all\n\nAnd note that whenever --delete is pass, ' \
     "--restore will be forced so you don't risk losing your original " \
     'images.' \
 
     option_list = NoArgsCommand.option_list + (
-        make_option(
+        (make_option(
+            '--delete',
+            action='store_true',
+            dest='delete',
+            default=False,
+            help='Restores the original images and deletes the media-helper '
+                'directory tree.'),) +
+        (make_option(
+            '--resize',
+            dest='resize',
+            default=False,
+            metavar="FILE",
+            help='Resizes a specific image. Include the upload_to directory '
+                'where applicable.  (e.g., --resize=images/donkey.jpg)'),) +
+        (make_option(
+            '--resize-all',
+            action='store_true',
+            dest='resize-all',
+            default=False,
+            help='Resizes all allowed images in MEDIA_ROOT.'),) +
+        (make_option(
+            '--resize-originals',
+            action='store_true',
+            dest='resize-originals',
+            default=False,
+            help='Use this when you want to change the quality and/or size of '
+                'the place holder images'),) +
+        (make_option(
             '--restore',
             action='store_true',
             dest='restore',
@@ -30,27 +58,12 @@ class Command(NoArgsCommand):
                 'sub directory to their native path and then deletes the '
                 'backup.  All other images remain intact.  This means that '
                 'the full-sized image will be delivered when the page is '
-                'loaded.'),) + \
-        (make_option(
-            '--resize-all',
-            action='store_true',
-            dest='resize-all',
-            default=False,
-            help='Resizes all allowed images in MEDIA_ROOT.'),) + \
-        (make_option(
-            '--delete',
-            action='store_true',
-            dest='delete',
-            default=False,
-            help='Restores the original images and deletes the media-helper '
-                'directory tree.'),) + \
-        (make_option(
-            '--resize-originals',
-            action='store_true',
-            dest='resize-originals',
-            default=False,
-            help='Use this when you want to change the quality and/or size of '
-                'the place holder images'),)
+                'loaded.'),)
+    )
+
+
+
+
 
     def handle_noargs(self, **options):
         # counters
@@ -81,6 +94,8 @@ class Command(NoArgsCommand):
             options['resize-originals'] or
             options['resize-all']):
                 self.traverse_media_root(**options)
+        if (options['resize']):
+            self.auto_resize(options['resize'], **options)
 
     def restore(self, original_path, backup_path, **options):
         ''' Copies original.jpg from media-helper to its original location '''
@@ -107,6 +122,7 @@ class Command(NoArgsCommand):
                 # Exclude media-helper directory
                 if 'media-helper' in dirs:
                     dirs.remove('media-helper')
+
                 dirs[:] = [d for d in dirs if d is not 'media-helper']
                 for file in files:
                     image_path = os.path.join(
@@ -128,7 +144,7 @@ class Command(NoArgsCommand):
                             skipped += 1
 
                     if options['resize-all']:
-                        if self.resize_all(image_path, **options):
+                        if self.auto_resize(image_path, **options):
                             resized += 1
                         else:
                             skipped += 1
@@ -142,7 +158,7 @@ class Command(NoArgsCommand):
                 "%d file(s) restored.\n%d file(s) resized.\n%d file(s) skipped"
                 % (restored, resized, skipped))
 
-    def resize_all(self, image_path, **options):
+    def auto_resize(self, image_path, **options):
         ''' Resizes all images found in the media directory '''
         from PIL import Image
 

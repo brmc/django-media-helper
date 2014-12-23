@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.3
+
+### New Features
+
+* New management command to resize a specific image: --resize=PATH/FILENAME
+
+* Images and backgrounds are now be preloaded before being replaced to avoid
+flickering
+
+* Created the following jQuery plugins for resizing and replacing images and
+backgrounds to allow more granular control:
+    swapImage(),
+    swapBackground(),
+    replaceAll()
+
+### Bug Fixes
+
+* Fixed unicode decode error in management.commands.mediahelper
+
+* Changed resize quality from 85 to 'keep' because resized jpegs were often
+  larger than their source files.
+
+### MISC
+
+* Finally wrote a proper regex for url stripping in ajax.html
+
+* Created tox envronments explicitly for django versions
+
+
 ## v0.2.2-bugfix
 
 * Fixed firefox issues.  Now correctly removes host name from background-images

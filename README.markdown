@@ -17,6 +17,7 @@ transfer.
 
 * [Quick start](#quick-start)
 * [Changelog (Recent changes only)](#changelog)
+  * [v0.3](#v03)
   * [v0.2.2-bugfix](#v022-bugfix)
   * [v0.2.2](#v022)  
   * [v0.2.1.1](#v0211)  
@@ -38,6 +39,7 @@ transfer.
 * [Usage](#usage)
   * [Management Command: mediahelper](#management-command-mediahelper)
   * [option: --restore](#option---restore)
+  * [option: --resize](#option---resize=FILENAME)
   * [option: --resize-all](#option---resize-all)
   * [option: --resize-originals](#option---resize-originals)
   * [option: --delete](#option---delete)
@@ -103,13 +105,16 @@ urlpatterns = patterns('',
 That should be it for default functionality  
 
 
-## Changelog
+## Changelog (Recent Changes)
 
 ### v0.3
 
 #### New Features
 
-* Images and backgrounds will now be preloaded before being replaced
+* New management command to resize a specific image: --resize=PATH/FILENAME
+
+* Images and backgrounds will now be preloaded before being replaced to avoid
+flickering
 
 * Created the following jQuery plugins for resizing and replacing images and  
 backgrounds to allow more granular control: 
@@ -117,15 +122,9 @@ backgrounds to allow more granular control:
     swapBackground(),
     replaceAll()
 
-### Changes
-
-* `strip_path` in in `ajax.html` was converted to a regex.
-
 #### Bug Fixes
 
 * Fixed unicode decode error in management.commands.mediahelper
-
-#### Bug fixes
 
 * Changed resize quality from 85 to 'keep' because resized jpegs were often
   larger than their source files.
@@ -133,6 +132,8 @@ backgrounds to allow more granular control:
 #### MISC
 
 * Finally wrote a regex for url stripping
+
+* Created tox envronments explicitly for django versions
 
 ### v0.2.2-bugfix
 
@@ -145,56 +146,6 @@ backgrounds to allow more granular control:
 * Fixed ajax success callbacks to use selectors defined in settings
 
 * Updated readme
-
-### v0.2.2
-
-* fixed travis.yml
-
-### v0.2.1.1
-
-* updated Quickstart
-
-### v.0.2.1
-
-#### New features
-
-* Added a context processor to access media_helper settings in templates.  
-note:when accessing the settings, omit the `MEDIA_HELPER_` prefix.  That is  
-simply to avoid namespace conflicts in the main django ecosystem.
-
-* Added explicit include selectors for backgrounds and images.
-
-#### Changes
-
-* `resolution` view renamed to `media_helper`
-
-* internal settings converted to uppercase.
-
-### v.0.1.4.bug-fix
-
-* fixed settings import error
-
-* image size of 0 error fixed.  this was done earlier, but i forgot to mention
-it
-
-### v.0.1.4  
-
-#### Changes
-
-* tox and travis integration
-
-* added python 3 compatibility
-
-* moved to github 
-
-### v.0.1.4.a
-
-
-#### Changes
-
-* settings module made less stupid.
-
-* tests divded into separate files
 
 
 #### General
@@ -435,6 +386,17 @@ don't risk losing your original images.
 Restores the original images found in the media-helper sub directory to their  
 native path and then deletes the backup.  All other images remain intact.  This  
 means that the full-sized image will be delivered when the page is loaded.  
+
+
+### option: `--resize=FILENAME` ###
+
+Automatically resizes a single image according to scaling factors defined in
+the settings.
+
+You only need to include the upload_to directory for `FILENAME`.  For example
+for an image uploaded to 'images/' would be resized like so:
+
+    --resize=images/file.jpg
 
 
 ### option: `--resize-all`

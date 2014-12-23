@@ -11,7 +11,7 @@ from media_helper import settings
 from .helpers import construct_paths, check_encoding, create_directories
 
 
-def resize(image_path, new_width):
+def resize(image_path, new_width, filename=None):
     """ A single image is resized and saved to a new directory.
 
     This is the cornerstone of the app where all resizing actually happens.
@@ -70,16 +70,19 @@ def resize(image_path, new_width):
         (new_width, int(height * scaling_factor)),
         Image.ANTIALIAS)
 
+    quality = 'keep' if new_image.format == 'JPEG' else 85
+
     create_directories(paths['media_helper_root'], image_name)
+    filename = str(new_width) if filename is None else filename
 
     try:
         new_image.save(
             os.path.join(
                 paths['response_system_path'],
-                str(new_width) + "." + encoding,
+                filename + "." + encoding,
             ),
             encoding,
-            quality=85,
+            quality=quality,
             optimize=True)
         return True
     except KeyError:
