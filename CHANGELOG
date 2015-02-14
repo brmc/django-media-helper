@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3-bugfix
+
+* Fixed the long-description in setup.py that was causing installation to fail.
+I'm still not quite sure why, so I just decided to hard-code it for now.
+
 ## v0.3
 
 ### New Features

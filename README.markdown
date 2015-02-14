@@ -15,6 +15,7 @@ transfer.
 
 * [Quick start](#quick-start)
 * [Changelog (Recent changes only)](#changelog-recent-changes)
+  * [v0.3-bugfix](#v03-bugfix)
   * [v0.3](#v03)
   * [v0.2.2-bugfix](#v022-bugfix)
   * [v0.2.2](#v022)  
@@ -104,6 +105,11 @@ That should be it for default functionality
 
 
 ## Changelog (Recent Changes)
+
+### v0.3-bugfix
+
+* Fixed the long-description in setup.py that was causing installation to fail.
+I'm still not quite sure why, so I just decided to hard-code it for now.
 
 ### v0.3
 
