@@ -9,7 +9,6 @@
 
 from setuptools import setup, find_packages
 
-
 setup(
     name     = 'django-media-helper',
     version  = '0.3',
@@ -17,7 +16,7 @@ setup(
     include_package_data=True,
     requires = ['python (>= 2.7)', 'django (>= 1.6)', 'Pillow (>= 2.1.0)'],
     description  = 'A image resizing and management app for Django',
-    long_description = open('docs/description.markdown').read(),
+    long_description = open('description.markdown').read(),
     author       = 'Brian McClure',
     author_email = 'brian.mcclr@gmail.com',
     url          = 'https://github.com/brmc/django-media-helper',
