@@ -1,13 +1,15 @@
+# **This package is not currently being maintained. The last-known compatible version of django was 1.7. Proceed accordingly.**
+
 # **django-media-helper** #
 
 When dealing with content from unacquainted sources(e.g., clients or designers)  
 one often gets images with absurd dimensions and/or filesizes: A 3000px-wide  
 play-button, a 10MB logo, etc.  Media-helper attempts to mitigate this problem  
-by automating image-resizing, delivering the most appropriately sized image to
+by automating image-resizing and delivering the most appropriately sized image to  
 the browser. 
 
 It is also designed to be dropped into existing projects with minimal effort.  
-It's still in the alpha stage, but if you're careful it might make your life a 
+It's still in the alpha stage, but if you're careful it might make your life a  
 little bit easier while also speeding up your load times and reducing data  
 transfer.  
 
@@ -108,8 +110,8 @@ That should be it for default functionality
 
 ### v0.3.1-bugfix
 
-* Fixed the long-description in setup.py that was causing installation to fail.
-I'm still not quite sure why, so I just decided to hard-code it for now.
+* Fixed the long-description in setup.py that was causing installation to fail.  
+I'm still not quite sure why, so I just decided to hard-code it for now.  
 
 ### v0.3
 
@@ -164,11 +166,11 @@ backgrounds to allow more granular control:
 When dealing with content from unacquainted sources(e.g., clients or designers)  
 one often gets images with absurd dimensions and/or filesizes: A 3000px-wide  
 play-button, a 10MB logo, etc.  Media-helper attempts to mitigate this problem  
-by automating image-resizing, delivering the most appropriately sized image to
+by automating image-resizing, delivering the most appropriately sized image to  
 the browser. 
 
 It is also designed to be dropped into existing projects with minimal effort.  
-It's still in the alpha stage, but if you're careful it might make your life a 
+It's still in the alpha stage, but if you're careful it might make your life a  
 little bit easier while also speeding up your load times and reducing data transfer.  
 
 It's basically broken into two parts....
@@ -194,7 +196,7 @@ From the django-cleanup docs:
 
 ### Image resizing ###
 
-Images are resized, stored, and delivered via AJAX while the rest of your page 
+Images are resized, stored, and delivered via AJAX while the rest of your page  
 loads.
 
 
@@ -209,8 +211,8 @@ is listed in INSTALLED_APPS above 'media_helper'.
 ### Image Resizing ###
 
 When a user visits your domain, the low-res copy of each image will be initially  
-delivered to the browser. jQuery will then determine the rendered size of all
-elements containing an image or background-image, bundle all these images their
+delivered to the browser. jQuery will then determine the rendered size of all  
+elements containing an image or background-image, bundle all these images their  
 respective dimensions, and send them to the server via an AJAX request. If no   
 image already exists, a new one will be generated. If something goes wrong,  
 the low-res image will remain in place.  
@@ -221,7 +223,7 @@ won't be lost in case the user **does** maximize the window. **This assumes
 you're using a responsive design with images whose sizes are not statically  
 defined.  In the near future I will accomodate for for alternate scenarios**
 
-So for those of you who prefer lists, here's what's going on:
+So for those of you who prefer lists, here's what's going on:  
 
 1. Deliver low-res images with initial http request  
 2. Measure all elements containing image or background-image  
@@ -231,9 +233,9 @@ So for those of you who prefer lists, here's what's going on:
     rounded to a certain value. [see Configuration](#media_helper_round_to)
 
 **One person was under the impression that 3 requests were made per image  
-(initial request, ajax, and the request for resized image), so to clarify,  
+(initial request, ajax, and the request for resized image), so to clarify,   
 that is not the case.  Well, it is true if there is only one image per page,  
-but all ajax requests are bundled together, so the number of requests per image
+but all ajax requests are bundled together, so the number of requests per image  
 approaches 2 as the number of images increases.**
 
 
@@ -290,9 +292,9 @@ And don't worry, Pillow pisses everyone off at some point.
 
 Unless you plan to write the client-side AJAX requests yourself, you're going  
 to need jQuery.  It's pretty basic stuff, so any reasonably recent version   
-should be fine.  I haven't observed any conflict with jQuery 2.x, but 
-considering that the goal of this app is to accomodate for people who--with 
-no disrespect intended--don't know any better, sticking with jQuery 1.x might 
+should be fine.  I haven't observed any conflict with jQuery 2.x, but  
+considering that the goal of this app is to accomodate for people who--with  
+no disrespect intended--don't know any better, sticking with jQuery 1.x might  
 be a better idea for the IE support.
 
 
@@ -344,7 +346,7 @@ so include the following template somewhere *after* jquery, like so:
     ...
     {% include 'media_helper/ajax.html' %}  
 
-This is safe to use inside django-compressor `compress` tags.  In fact, it's
+This is safe to use inside django-compressor `compress` tags.  In fact, it's 
 recommended.
 
 And I write JS like a neanderthal, so feel free to write your own AJAX. I don't    
@@ -364,8 +366,8 @@ be broken,  here are some management commands that might be useful.
 
 ### Management Command: `mediahelper` ###
 
-**note: there aren't any tests written for these commands yet.  Use them at 
-your own risk.  I've used them on three small sites in production without 
+**note: there aren't any tests written for these commands yet.  Use them at  
+your own risk.  I've used them on three small sites in production without  
 problem.** 
 
 This command is used to retrofit the media_helper app into a project that  
@@ -395,11 +397,11 @@ means that the full-sized image will be delivered when the page is loaded.
 
 ### option: `--resize=FILENAME` ###
 
-Automatically resizes a single image according to scaling factors defined in
+Automatically resizes a single image according to scaling factors defined in  
 the settings.
 
-You only need to include the upload_to directory for `FILENAME`.  For example
-for an image uploaded to 'images/' would be resized like so:
+You only need to include the upload_to directory for `FILENAME`.  For example  
+for an image uploaded to 'images/' would be resized like so:  
 
     --resize=images/file.jpg
 
@@ -487,21 +489,21 @@ a good time to go into that.
 
 ### `MEDIA_HELPER_ROUND_TO`
 
-This is probably one of the most important features because it is intended to 
-prevent a deluge of images being created, it is especially helpful for sites
+This is probably one of the most important features because it is intended to  
+prevent a deluge of images being created, it is especially helpful for sites  
 with many images.
 
 It is simply an integer representing the near # to round to.
 
 **default value:** `10`
 
-This value was chosen rather arbitrarily, but I figure it's large enough to 
+This value was chosen rather arbitrarily, but I figure it's large enough to  
 account for slight variations in browsers.
 
 
 ### `MEDIA_HELPER_DEFAULT`
 
-This is the scaling factor for the low-res default/placeholder.
+This is the scaling factor for the low-res default/placeholder.  
 
 **default value:** `.1`
 
@@ -527,14 +529,14 @@ The quality of the low-res image.
 **default value:** `50`
 
 default values for `MEDIA_HELPER_DEFAULT` and `MEDIA_HELPER_QUALITY` were also 
-chosen without any particular reasoning other than "make smaller." No science
+chosen without any particular reasoning other than "make smaller." No science  
 included.
 
 
 ### `MEDIA_HELPER_ALLOWED_ENCODINGS`
 
-This tells media_helper which file extensions to recognize, but isn't checked 
-intelligently.  It's simply a string comparison, but in case of errors, it 
+This tells media_helper which file extensions to recognize, but isn't checked  
+intelligently.  It's simply a string comparison, but in case of errors, it  
 should fail gracefully.
 
 **default values:** `['jpg', 'jpeg', 'png']`
