@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.apps import apps
+
 import warnings
 
 
@@ -14,7 +16,7 @@ def find_models_with_field(field_type):
     :returns: list of models from installed apps
     """
     result = []
-    for model in models.get_models():
+    for model in apps.get_models():
         for field in model._meta.fields:
             if isinstance(field, field_type):
                 result.append(model)

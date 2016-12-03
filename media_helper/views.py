@@ -163,8 +163,6 @@ def media_helper(request):
 
         if backgrounds is not None:
             new_backgrounds = get_resized_images(backgrounds)
-            json['backgrounds'] = new_backgrounds
-            print "backgrounds", new_backgrounds
 
         json = dumps(json)
 

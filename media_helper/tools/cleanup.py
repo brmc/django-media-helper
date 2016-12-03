@@ -9,6 +9,8 @@ https://github.com/un1t/django-cleanup
 '''
 import logging
 from django.db import models
+from django.apps import apps
+
 from django.db.models.signals import pre_save, post_delete
 
 logger = logging.getLogger(__name__)
@@ -19,7 +21,7 @@ def find_models_with_filefield():
     Returns a list of models that have a file field
     '''
     result = []
-    for model in models.get_models():
+    for model in apps.get_models():
         for field in model._meta.fields:
             if isinstance(field, models.FileField):
                 result.append(model)

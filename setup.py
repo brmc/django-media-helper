@@ -24,14 +24,14 @@ transfer."""
 
 setup(
     name     = 'django-media-helper',
-    version  = '0.3.1-bugfix',
+    version  = '0.3.2',
     packages = find_packages(),
     include_package_data=True,
-    requires = ['python (>= 2.7)', 'django (>= 1.6)', 'Pillow (>= 2.1.0)'],
+    requires = ['python (>= 2.7)', 'django (>= 1.8)', 'Pillow (>= 2.1.0)'],
     description  = 'An image resizing and management app for Django',
     long_description = description,
     author       = 'Brian McClure',
-    author_email = 'brian.mcclr@gmail.com',
+    author_email = 'django@jetbrains.com',
     url          = 'https://github.com/brmc/django-media-helper',
     download_url = 'https://github.com/brmc/django-media-helper.git',
     license      = 'MIT License',
@@ -42,8 +42,7 @@ setup(
         'Intended Audience :: Developers',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
     ],
 )
