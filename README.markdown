@@ -1,4 +1,6 @@
-# **This package is not currently being maintained. The last-known compatible version of django was 1.7. Proceed accordingly.**
+[![Build Status](https://travis-ci.org/brmc/django-media-helper.svg?branch=master)](https://travis-ci.org/brmc/django-media-helper)
+
+# Basic support for django 1.8 - 1.10 has been implemented, and the tests are passing, but they are most certainly not comprehensive.  The drop-in functionality with no configuration seems to work, but nothing else not covered in the tests has been tried in the wild, so proceed accordingly  
 
 # **django-media-helper** #
 
@@ -17,6 +19,7 @@ transfer.
 
 * [Quick start](#quick-start)
 * [Changelog (Recent changes only)](#changelog-recent-changes)
+  * [v0.3.2](#v032)
   * [v0.3.1-bugfix](#v031-bugfix)
   * [v0.3](#v03)
   * [v0.2.2-bugfix](#v022-bugfix)
@@ -67,7 +70,9 @@ i\. **Requirements**
 
 1\. **Installation**
 
-    pip install django-media-helper     
+    # pip install django-media-helper
+    # install from source until more tests are written 
+    pip install git+git://github.com/brmc/django-media-helper.git
 
 2\. **settings.py:**  
      
@@ -107,6 +112,13 @@ That should be it for default functionality
 
 
 ## Changelog (Recent Changes)
+
+### v0.3.2
+
+* Added support for django 1.8-1.10
+* Removed support for django < 1.8
+* Added support for python 3.5
+* Removed support for python 3.4, 3.3
 
 ### v0.3.1-bugfix
 
@@ -305,8 +317,9 @@ be a better idea for the IE support.
 
 **1\.** Install media_helper:  
     
-    pip install django-media-helper
-
+    #pip install django-media-helper
+    # install from source until more tests are written:
+    pip install git+git://github.com/brmc/django-media-helper.git
 
 
 **2\.** Add `media_helper` to settings.py
