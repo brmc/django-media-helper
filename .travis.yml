@@ -14,9 +14,6 @@ install:
 script:
   - tox
 env:
-  - TOXENV=py27
-  - TOXENV=py34
-  - TOXENV=py35
   - TOXENV=django18
   - TOXENV=django19
   - TOXENV=django110
