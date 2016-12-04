@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.2
+
+* added support for django 1.8-1.10 and python 3.5
+* removed support for django < 1.6 and python 3.3
+
 ## v0.3.1-bugfix
 
 * Fixed the long-description in setup.py that was causing installation to fail.
