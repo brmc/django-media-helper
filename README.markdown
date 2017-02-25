@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/brmc/django-media-helper.svg?branch=master)](https://travis-ci.org/brmc/django-media-helper)
 
-# Don't use this library until further notice. ~~Basic support for django 1.8 - 1.10 has been implemented, and the tests are passing, but they are most certainly not comprehensive.  The drop-in functionality with no configuration seems to work, but nothing else not covered in the tests has been tried in the wild, so proceed accordingly~~  
+# **Don't use this library until further notice.** 
+
+#~~Basic support for django 1.8 - 1.10 has been implemented, and the tests are passing, but they are most certainly not comprehensive.  The drop-in functionality with no configuration seems to work, but nothing else not covered in the tests has been tried in the wild, so proceed accordingly~~  
 
 # **django-media-helper** #
 
